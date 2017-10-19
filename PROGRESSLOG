@@ -1,0 +1,22 @@
+0.0.0.6:
+started cobbling together functions to turn things into bitstrings
+
+0.0.0.5:
+realized compiler warnings are not to be ignored, fixed
+finished working on operators
+
+0.0.0.4:
+more work on operators, started ignoring compiler warnings
+
+0.0.0.3
+Finished working with bits for variable length values, started working on operators
+
+0.0.0.2:
+Started working on components of Variable Length Values (MIDI's special number)
+
+0.0.0.1:
+created files
+setup things needed to make a MIDI file (chunks, events, variable length values and the like)
+
+0.0.0.0:
+"Hey why don't I try doing this......"
