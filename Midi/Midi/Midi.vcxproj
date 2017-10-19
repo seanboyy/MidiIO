@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{6C2F134D-B87B-4646-AE0F-09A71AD35FF8}</ProjectGuid>
+    <ProjectGuid>{28DAEB92-3F54-4520-9890-0E60FB5C984E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>Midi</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
@@ -153,7 +153,6 @@
     <ClCompile Include="Event.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi.cpp" />
-    <ClCompile Include="StreamingHelper.cpp" />
     <ClCompile Include="VariableLengthValue.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
