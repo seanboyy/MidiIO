@@ -1,3 +1,7 @@
+0.0.0.7:
+finished making toBitString and getLength functions
+fixed problem with unresolved dependencies
+
 0.0.0.6:
 started cobbling together functions to turn things into bitstrings
 
