@@ -1,26 +1,31 @@
-0.0.0.7:
+0.0.1a (alpha.1):
+fixed inheritance issues (i.e. I figure out how to do it correctly.....)
+toBitString works correctly
+which means ...... **drumroll** WE'RE IN ALPHA BABY!!!
+
+pre-alpha.7:
 finished making toBitString and getLength functions
 fixed problem with unresolved dependencies
 
-0.0.0.6:
+pre-alpha.6:
 started cobbling together functions to turn things into bitstrings
 
-0.0.0.5:
+pre-alpha.5:
 realized compiler warnings are not to be ignored, fixed
 finished working on operators
 
-0.0.0.4:
+pre-alpha.4:
 more work on operators, started ignoring compiler warnings
 
-0.0.0.3
+pre-alpha.3:
 Finished working with bits for variable length values, started working on operators
 
-0.0.0.2:
-Started working on components of Variable Length Values (MIDI's special number)
+pre-alpha.2:
+Started working on components of Variable Length Values (MIDI's special numeric type)
 
-0.0.0.1:
+pre-alpha.1:
 created files
 setup things needed to make a MIDI file (chunks, events, variable length values and the like)
 
-0.0.0.0:
+pre-alpha.0:
 "Hey why don't I try doing this......"

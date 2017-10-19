@@ -22,6 +22,9 @@ namespace mid {
 
 		template<typename T>
 		static void streamObjectToBitString(uint&, char*&, T, uint);
+
+		template<typename T>
+		static void streamObjectToBitString(uint&, char*&, T*, uint);
 	}sh, streamHelp, streamhelp;
 
 	typedef class VariableLengthValue {
@@ -82,17 +85,15 @@ namespace mid {
 
 	class Event {
 	public:
-		Event(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0x00, std::vector<uchar> eventData = std::vector<uchar>(0));
-		Event(const Event&);
-		char* toBitString();
-		uint getLength();
+		virtual char* toBitString() = 0;
+		virtual uint getLength() = 0;
 	protected:
 		VariableLengthValue timeDelta;
 		uchar eventType;
 		std::vector<uchar> eventData;
 	};
 
-	class MetaEvent : Event {
+	class MetaEvent : virtual public Event {
 	public:
 		MetaEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar metaEventType = 0x00, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
@@ -102,7 +103,7 @@ namespace mid {
 		VariableLengthValue eventLength;
 	};
 
-	class SysexEvent : Event {
+	class SysexEvent : virtual public Event {
 	public:
 		SysexEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0xF0, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
@@ -111,7 +112,7 @@ namespace mid {
 		VariableLengthValue eventLength;
 	};
 
-	class MidiEvent : Event {
+	class MidiEvent : virtual public Event {
 	public:
 		MidiEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0x80, std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
@@ -120,32 +121,39 @@ namespace mid {
 
 	class Chunk {
 	public:
-		Chunk(uint chunkSignature = TRACK_SIGNATURE, uint length = 0, std::vector<Event> events = std::vector<Event>(0));
-		uint getLength();
-		char* toBitString();
+		virtual char* toBitString() = 0;
+		virtual uint getLength() = 0;
 		uint chunkSignature;
 		uint length;
-		std::vector<Event> events;
+		std::vector<Event*> events;
 	};
 
-	class HeaderChunk : Chunk {
+	class HeaderChunk : virtual public Chunk {
 	public:
 		HeaderChunk(uint length = 6, ushort format = 0, ushort trackCount = 1, ushort tickDivision = 0x00C0);
 		char* toBitString();
+		uint getLength();
 	private:
 		ushort format;
 		ushort trackCount;
 		ushort tickDivision;
 	};
 
+	class TrackChunk : virtual public Chunk {
+	public:
+		TrackChunk(uint length = 0, std::vector<Event*> events = std::vector<Event*>(0));
+		uint getLength();
+		char* toBitString();
+	};
+
 	class Midi {
 	public:
-		Midi(std::vector<Chunk> chunks = std::vector<Chunk>(0));
+		Midi(std::vector<Chunk*> chunks = std::vector<Chunk*>(0));
 		Midi(const Midi&);
 		char* toBitString();
 		void fromBitString(const char*);
 	private:
-		std::vector<Chunk> chunks;
+		std::vector<Chunk*> chunks;
 	};
 
 	template<typename T>
@@ -159,6 +167,15 @@ namespace mid {
 	template<typename T>
 	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T object, uint length) {
 		char* objStr = object.toBitString();
+		for (uint i = 0; i < length; i++) {
+			bitString[cursor] = objStr[i];
+			cursor++;
+		}
+	}
+
+	template<typename T>
+	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T* object, uint length) {
+		char* objStr = object->toBitString();
 		for (uint i = 0; i < length; i++) {
 			bitString[cursor] = objStr[i];
 			cursor++;

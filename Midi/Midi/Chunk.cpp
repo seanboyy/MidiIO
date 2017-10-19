@@ -1,11 +1,9 @@
 #include "Midi.h"
 
 namespace mid {
-	Chunk::Chunk(uint chunkSignature, uint length, std::vector<Event> events) {
-		this->chunkSignature = chunkSignature;
-		assert(chunkSignature == MIDI_SIGNATURE || chunkSignature == TRACK_SIGNATURE);
-		this->length = length;
-		this->events = events;
+	/*
+	uint Chunk::getLength() {
+		return sizeof(chunkSignature) + sizeof(length) + length;
 	}
 
 	char* Chunk::toBitString() {
@@ -13,13 +11,31 @@ namespace mid {
 		uint cursor = 0;
 		sh::streamValueToBitString(cursor, ret, chunkSignature);
 		sh::streamValueToBitString(cursor, ret, length);
-		for (Event e : events) {
-			sh::streamObjectToBitString(cursor, ret, e, e.getLength());
+		for (uint i = 0; i < events.size(); i++) {
+			sh::streamObjectToBitString(cursor, ret, events[i], events[i].getLength());
+		}
+		return ret;
+	}
+	*/
+
+	TrackChunk::TrackChunk(uint length, std::vector<Event*> events) {
+		this->chunkSignature = TRACK_SIGNATURE;
+		this->length = length;
+		this->events = events;
+	}
+
+	char* TrackChunk::toBitString() {
+		char* ret = new char[getLength()];
+		uint cursor = 0;
+		sh::streamValueToBitString(cursor, ret, chunkSignature);
+		sh::streamValueToBitString(cursor, ret, length);
+		for (uint i = 0; i < events.size(); i++) {
+			sh::streamObjectToBitString(cursor, ret, events[i], events[i]->getLength());
 		}
 		return ret;
 	}
 
-	uint Chunk::getLength() {
+	uint TrackChunk::getLength() {
 		return sizeof(chunkSignature) + sizeof(length) + length;
 	}
 
@@ -40,5 +56,9 @@ namespace mid {
 		sh::streamValueToBitString(cursor, ret, trackCount);
 		sh::streamValueToBitString(cursor, ret, tickDivision);
 		return ret;
+	}
+
+	uint HeaderChunk::getLength() {
+		return sizeof(chunkSignature) + sizeof(length) + length;
 	}
 }

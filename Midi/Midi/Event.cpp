@@ -1,19 +1,7 @@
 #include "Midi.h"
 
 namespace mid {
-
-	Event::Event(VariableLengthValue timeDelta, uchar eventType, std::vector<uchar> eventData) {
-		this->timeDelta = timeDelta;
-		this->eventType = eventType;
-		this->eventData = eventData;
-	}
-
-	Event::Event(const Event& other) {
-		timeDelta = other.timeDelta;
-		eventType = other.eventType;
-		eventData = other.eventData;
-	}
-
+	/*
 	char* Event::toBitString() {
 		char* ret = new char[getLength()];
 		uint cursor = 0;
@@ -28,7 +16,7 @@ namespace mid {
 	uint Event::getLength() {
 		return timeDelta.getLength() + sizeof(eventType) + eventData.size();
 	}
-
+	*/
 	//---------------------END OF EVENT CLASS---------------------//
 
 	MetaEvent::MetaEvent(VariableLengthValue timeDelta, uchar metaEventType, VariableLengthValue eventLength, std::vector<uchar> eventData) {
