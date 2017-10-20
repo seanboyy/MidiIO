@@ -31,6 +31,25 @@ namespace mid {
 		return result;
 	}
 
+	uint VariableLengthValue::toNumber(uint in) {
+		uint result = 0;
+		if (in <= VariableLengthValue::VLV_MAX_VAL) {
+			uchar b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+			b4 |= (in & 0x0000007F);
+			b4 |= (in & 0x00000100) >> 1;
+			b3 |= (in & 0x00007E00) >> 9;
+			b3 |= (in & 0x00030000) >> 10;
+			b2 |= (in & 0x007C0000) >> 18;
+			b2 |= (in & 0x07000000) >> 19;
+			b1 |= (in & 0x78000000) >> 27;
+			result = (result | b1) << 8;
+			result = (result | b2) << 8;
+			result = (result | b3) << 8;
+			result = (result | b4) << 8;
+		}
+		return result;
+	}
+
 	void VariableLengthValue::toVariableLength(uint in) {
 		value = 0;
 		length = 0;

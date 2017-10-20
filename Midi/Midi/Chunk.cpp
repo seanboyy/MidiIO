@@ -19,7 +19,7 @@ namespace mid {
 	*/
 
 	TrackChunk::TrackChunk(uint length, std::vector<Event*> events) {
-		this->chunkSignature = TRACK_SIGNATURE;
+		this->chunkSignature = c::TRACK_SIGNATURE;
 		this->length = length;
 		this->events = events;
 	}
@@ -40,7 +40,7 @@ namespace mid {
 	}
 
 	HeaderChunk::HeaderChunk(uint length, ushort format, ushort trackCount, ushort tickDivision) {
-		chunkSignature = MIDI_SIGNATURE;
+		chunkSignature = c::MIDI_SIGNATURE;
 		this->length = length;
 		this->format = format;
 		this->trackCount = trackCount;
