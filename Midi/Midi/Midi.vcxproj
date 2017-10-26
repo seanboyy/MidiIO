@@ -149,12 +149,8 @@
     <ClInclude Include="Midi.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Chunk.cpp" />
-    <ClCompile Include="Event.cpp" />
-    <ClCompile Include="File.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Midi.cpp" />
-    <ClCompile Include="VariableLengthValue.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -13,20 +13,6 @@ namespace mid {
 	typedef unsigned long ulong;
 	typedef unsigned long long ullong;
 
-	typedef class StreamingHelper {
-	public:
-		template<typename T>
-		static void streamValueToBitString(uint&, char*&, T);
-		template<typename T>
-		static void streamObjectToBitString(uint&, char*&, T, uint);
-		template<typename T>
-		static void streamObjectToBitString(uint&, char*&, T*, uint);
-		static uchar getCharFromBitString(uint&, const char*);
-		static ushort getShortFromBitString(uint&, const char*);
-		static uint getIntFromBitString(uint&, const char*);
-		static VariableLengthValue getVLVFromBitString(uint&, const char*);
-	}sh, streamHelp, streamhelp;
-
 	typedef class VariableLengthValue {
 	public:
 		const static uint VLV_MAX_IN = 0x0FFFFFFF;
@@ -34,7 +20,7 @@ namespace mid {
 		VariableLengthValue(uint = 0);
 		VariableLengthValue(const VariableLengthValue&);
 		uint toNumber();
-		uint toNumber(uint);
+		static uint toNumber(uint);
 		void toVariableLength(uint);
 		char* toBitString();
 		uint getLength();
@@ -83,6 +69,21 @@ namespace mid {
 		uint length;
 		uint value;
 	}vlv, varLength, varLen;
+
+	typedef class StreamingHelper {
+	public:
+		static uchar getCharFromBitString(uint&, const char*);
+		static ushort getShortFromBitString(uint&, const char*);
+		static uint getIntFromBitString(uint&, const char*);
+		static VariableLengthValue getVLVFromBitString(uint&, const char*);
+
+		template<typename T>
+		static void streamValueToBitString(uint&, char*&, T);
+		template<typename T>
+		static void streamObjectToBitString(uint&, char*&, T, uint);
+		template<typename T>
+		static void streamObjectToBitString(uint&, char*&, T*, uint);
+	}sh, streamHelp, streamhelp;
 
 	class Event {
 	public:
@@ -180,60 +181,4 @@ namespace mid {
 		const static uchar PITCH = 0xE0;
 		const static uchar C4 = 0x3C;
 	}constants, c;
-
-	template<typename T>
-	void StreamingHelper::streamValueToBitString(uint& cursor, char*& bitString, T value) {
-		for (uint i = 0; i < sizeof(value); i++) {
-			bitString[cursor] = (value << (8 * i)) >> (8 * (sizeof(value) - 1));
-			cursor++;
-		}
-	}
-
-	template<typename T>
-	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T object, uint length) {
-		char* objStr = object.toBitString();
-		for (uint i = 0; i < length; i++) {
-			bitString[cursor] = objStr[i];
-			cursor++;
-		}
-	}
-
-	template<typename T>
-	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T* object, uint length) {
-		char* objStr = object->toBitString();
-		for (uint i = 0; i < length; i++) {
-			bitString[cursor] = objStr[i];
-			cursor++;
-		}
-	}
-
-	uchar StreamingHelper::getCharFromBitString(uint& cursor, const char* bitString) {
-		return bitString[cursor++];
-	}
-
-	ushort StreamingHelper::getShortFromBitString(uint& cursor, const char* bitString) {
-		ushort result = bitString[cursor++];
-		result <<= 8;
-		result |= bitString[cursor++];
-		return result;
-	}
-
-	uint StreamingHelper::getIntFromBitString(uint& cursor, const char* bitString) {
-		uint result = bitString[cursor++];
-		result <<= 8;
-		result = (result | bitString[cursor++]) << 8;
-		result = (result | bitString[cursor++]) << 8;
-		result |= bitString[cursor++];
-	}
-
-	VariableLengthValue StreamingHelper::getVLVFromBitString(uint& cursor, const char* bitString) {
-		uint length = 1;
-		uint value = 0;
-		for (uint i = 0; i < length; i++) {
-			uchar tempByte = getCharFromBitString(cursor, bitString);
-			if (tempByte & 0x80 == 0x80) length++;
-			value |= tempByte;
-			if (!(i == length - 1)) value <<= 8;
-		}
-	}
 }

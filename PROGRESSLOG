@@ -1,3 +1,6 @@
+0.0.3a:
+merged all files into one to resolve stupid linker issues
+
 0.0.2a:
 pieced together code for interpreting a string into a midi object
 
