@@ -17,7 +17,7 @@ namespace mid {
 		fin.open(filename, std::ios::binary);
 		char* fileData = new char[filesize];
 		fin.read(fileData, filesize);
-		midi.fromBitString(fileData);
+		midi.fromBitString(fileData, filesize);
 		return true;
 	}
 

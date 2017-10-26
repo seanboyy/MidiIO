@@ -1,23 +1,6 @@
 #include "Midi.h"
 
 namespace mid {
-	/*
-	uint Chunk::getLength() {
-		return sizeof(chunkSignature) + sizeof(length) + length;
-	}
-
-	char* Chunk::toBitString() {
-		char* ret = new char[getLength()];
-		uint cursor = 0;
-		sh::streamValueToBitString(cursor, ret, chunkSignature);
-		sh::streamValueToBitString(cursor, ret, length);
-		for (uint i = 0; i < events.size(); i++) {
-			sh::streamObjectToBitString(cursor, ret, events[i], events[i].getLength());
-		}
-		return ret;
-	}
-	*/
-
 	TrackChunk::TrackChunk(uint length, std::vector<Event*> events) {
 		this->chunkSignature = c::TRACK_SIGNATURE;
 		this->length = length;

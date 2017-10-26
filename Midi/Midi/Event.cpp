@@ -22,11 +22,6 @@ namespace mid {
 		return ret;
 	}
 
-	void MetaEvent::fromBitString(uint& cursor, char* bitString) {
-		timeDelta = sh::getVLVFromBitString(cursor, bitString);
-
-	}
-
 	uint MetaEvent::getLength() {
 		return timeDelta.getLength() + sizeof(eventType) + sizeof(metaEventType) + eventLength.getLength() + eventData.size();
 	}

@@ -87,7 +87,6 @@ namespace mid {
 	class Event {
 	public:
 		virtual char* toBitString() = 0;
-		virtual void fromBitString(uint&, char*) = 0;
 		virtual uint getLength() = 0;
 	protected:
 		VariableLengthValue timeDelta;
@@ -99,7 +98,6 @@ namespace mid {
 	public:
 		MetaEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar metaEventType = 0x00, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
-		void fromBitString(uint&, char*);
 		uint getLength();
 	private:
 		uchar metaEventType;
@@ -110,7 +108,6 @@ namespace mid {
 	public:
 		SysexEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0xF0, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
-		void fromBitString(uint&, char*);
 		uint getLength();
 	private:
 		VariableLengthValue eventLength;
@@ -120,7 +117,6 @@ namespace mid {
 	public:
 		MidiEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0x80, std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
-		void fromBitString(uint&, char*);
 		uint getLength();
 	};
 
@@ -156,7 +152,7 @@ namespace mid {
 		Midi(std::vector<Chunk*> chunks = std::vector<Chunk*>(0));
 		Midi(const Midi&);
 		char* toBitString();
-		void fromBitString(const char*);
+		void fromBitString(const char*, uint);
 		uint getLength();
 	private:
 		std::vector<Chunk*> chunks;
@@ -172,6 +168,9 @@ namespace mid {
 	public:
 		const static uint MIDI_SIGNATURE = 0x4D546864;
 		const static uint TRACK_SIGNATURE = 0x4D54726B;
+		const static uchar META_EVENT = 0xFF;
+		const static uchar SYSEX_EVENT = 0xF0;
+		const static uchar END_OF_TRACK = 0x2F;
 		const static uchar NOTE_OFF = 0x80;
 		const static uchar NOTE_ON = 0x90;
 		const static uchar POLY_TOUCH = 0xA0;

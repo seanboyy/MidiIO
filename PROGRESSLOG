@@ -1,3 +1,6 @@
+0.0.2a:
+pieced together code for interpreting a string into a midi object
+
 0.0.1a (alpha.1):
 fixed inheritance issues (i.e. I figure out how to do it correctly.....)
 toBitString works correctly

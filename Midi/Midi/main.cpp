@@ -24,6 +24,8 @@ int main(int argc, char** argv) {
 	chunks.push_back(new HeaderChunk());
 	Midi midi{ chunks };
 	char* bitString = midi.toBitString();
+	Midi midi2;
+	midi2.fromBitString(bitString, midi.getLength());
 	system("pause");
 	return EXIT_SUCCESS;
 }
