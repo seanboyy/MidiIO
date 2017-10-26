@@ -24,6 +24,7 @@ namespace mid {
 		static uchar getCharFromBitString(uint&, const char*);
 		static ushort getShortFromBitString(uint&, const char*);
 		static uint getIntFromBitString(uint&, const char*);
+		static VariableLengthValue getVLVFromBitString(uint&, const char*);
 	}sh, streamHelp, streamhelp;
 
 	typedef class VariableLengthValue {
@@ -86,6 +87,7 @@ namespace mid {
 	class Event {
 	public:
 		virtual char* toBitString() = 0;
+		virtual void fromBitString(uint&, char*) = 0;
 		virtual uint getLength() = 0;
 	protected:
 		VariableLengthValue timeDelta;
@@ -97,6 +99,7 @@ namespace mid {
 	public:
 		MetaEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar metaEventType = 0x00, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
+		void fromBitString(uint&, char*);
 		uint getLength();
 	private:
 		uchar metaEventType;
@@ -107,6 +110,7 @@ namespace mid {
 	public:
 		SysexEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0xF0, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
+		void fromBitString(uint&, char*);
 		uint getLength();
 	private:
 		VariableLengthValue eventLength;
@@ -116,6 +120,7 @@ namespace mid {
 	public:
 		MidiEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0x80, std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
+		void fromBitString(uint&, char*);
 		uint getLength();
 	};
 
@@ -220,5 +225,16 @@ namespace mid {
 		result = (result | bitString[cursor++]) << 8;
 		result = (result | bitString[cursor++]) << 8;
 		result |= bitString[cursor++];
+	}
+
+	VariableLengthValue StreamingHelper::getVLVFromBitString(uint& cursor, const char* bitString) {
+		uint length = 1;
+		uint value = 0;
+		for (uint i = 0; i < length; i++) {
+			uchar tempByte = getCharFromBitString(cursor, bitString);
+			if (tempByte & 0x80 == 0x80) length++;
+			value |= tempByte;
+			if (!(i == length - 1)) value <<= 8;
+		}
 	}
 }

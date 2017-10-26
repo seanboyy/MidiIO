@@ -1,24 +1,6 @@
 #include "Midi.h"
 
 namespace mid {
-	/*
-	char* Event::toBitString() {
-		char* ret = new char[getLength()];
-		uint cursor = 0;
-		sh::streamObjectToBitString(cursor, ret, timeDelta, timeDelta.getLength());
-		sh::streamValueToBitString(cursor, ret, eventType);
-		for (uchar byte : eventData) {
-			sh::streamValueToBitString(cursor, ret, byte);
-		}
-		return ret;
-	}
-
-	uint Event::getLength() {
-		return timeDelta.getLength() + sizeof(eventType) + eventData.size();
-	}
-	*/
-	//---------------------END OF EVENT CLASS---------------------//
-
 	MetaEvent::MetaEvent(VariableLengthValue timeDelta, uchar metaEventType, VariableLengthValue eventLength, std::vector<uchar> eventData) {
 		this->timeDelta = timeDelta;
 		this->eventType = 0xFF;
@@ -38,6 +20,11 @@ namespace mid {
 			sh::streamValueToBitString(cursor, ret, byte);
 		}
 		return ret;
+	}
+
+	void MetaEvent::fromBitString(uint& cursor, char* bitString) {
+		timeDelta = sh::getVLVFromBitString(cursor, bitString);
+
 	}
 
 	uint MetaEvent::getLength() {

@@ -147,8 +147,9 @@ namespace mid {
 	}
 
 	void operator! (VariableLengthValue& lhs) {
-		lhs.value ^= 0xFFFFFFFF;
-		lhs.toVariableLength(lhs.toNumber());
+		uint temp = lhs.toNumber() ^ 0xFFFFFFFF;
+		if (temp > VariableLengthValue::VLV_MAX_IN) temp = VariableLengthValue::VLV_MAX_IN;
+		lhs.toVariableLength(temp);
 	}
 
 	bool operator== (VariableLengthValue& lhs, uint rhs) {
