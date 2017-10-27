@@ -89,7 +89,6 @@ namespace mid {
 	public:
 		virtual char* toBitString() = 0;
 		virtual uint getLength() = 0;
-	protected:
 		VariableLengthValue timeDelta;
 		uchar eventType;
 		std::vector<uchar> eventData;
@@ -98,6 +97,7 @@ namespace mid {
 	class MetaEvent : virtual public Event {
 	public:
 		MetaEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar metaEventType = 0x00, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
+		//MetaEvent(const Event&);
 		char* toBitString();
 		uint getLength();
 	private:
@@ -108,6 +108,7 @@ namespace mid {
 	class SysexEvent : virtual public Event {
 	public:
 		SysexEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0xF0, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
+		//SysexEvent(const Event&);
 		char* toBitString();
 		uint getLength();
 	private:
@@ -117,12 +118,14 @@ namespace mid {
 	class MidiEvent : virtual public Event {
 	public:
 		MidiEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar eventType = 0x80, std::vector<uchar> eventData = std::vector<uchar>(0));
+		//MidiEvent(const Event&);
 		char* toBitString();
 		uint getLength();
 	};
 
 	class Chunk {
 	public:
+		//~Chunk();
 		virtual char* toBitString() = 0;
 		virtual uint getLength() = 0;
 		uint chunkSignature;
@@ -133,6 +136,9 @@ namespace mid {
 	class HeaderChunk : virtual public Chunk {
 	public:
 		HeaderChunk(uint length = 6, ushort format = 0, ushort trackCount = 1, ushort tickDivision = 0x00C0);
+		//HeaderChunk(const Chunk*);
+		//HeaderChunk(const Chunk&);
+		//HeaderChunk(const HeaderChunk&);
 		char* toBitString();
 		uint getLength();
 	private:
@@ -144,6 +150,9 @@ namespace mid {
 	class TrackChunk : virtual public Chunk {
 	public:
 		TrackChunk(uint length = 0, std::vector<Event*> events = std::vector<Event*>(0));
+		//TrackChunk(const Chunk*);
+		//TrackChunk(const Chunk&);
+		//TrackChunk(const TrackChunk&);
 		uint getLength();
 		char* toBitString();
 	};
@@ -151,7 +160,8 @@ namespace mid {
 	class Midi {
 	public:
 		Midi(std::vector<Chunk*> chunks = std::vector<Chunk*>(0));
-		Midi(const Midi&);
+		//Midi(const Midi&);
+		//~Midi();
 		char* toBitString();
 		void fromBitString(const char*, uint);
 		uint getLength();

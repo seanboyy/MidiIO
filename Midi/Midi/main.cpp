@@ -19,13 +19,17 @@ int main(int argc, char** argv) {
 	//lowvlv--;
 	//uint i = lowvlv % 4U;
 	
-	//uncomment the following to test toString stuffs
-	vector<Chunk*> chunks;
-	chunks.push_back(new HeaderChunk());
-	Midi midi{ chunks };
-	char* bitString = midi.toBitString();
-	Midi midi2;
-	midi2.fromBitString(bitString, midi.getLength());
+	//uncomment the following to test toString&fromString stuffs
+	//vector<Chunk*> chunks;
+	//chunks.push_back(new HeaderChunk());
+	//Midi midi{ chunks };
+	//char* bitString = midi.toBitString();
+	//Midi midi2;
+	//midi2.fromBitString(bitString, midi.getLength());
+
+	//uncomment the following to test file stuffs
+	Midi midi;
+	File::read("jauntyambience.mid", midi);
 	system("pause");
 	return EXIT_SUCCESS;
 }

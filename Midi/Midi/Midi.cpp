@@ -106,7 +106,7 @@ namespace mid {
 			result = (result | b1) << 8;
 			result = (result | b2) << 8;
 			result = (result | b3) << 8;
-			result = (result | b4) << 8;
+			result |= b4;
 		}
 		return result;
 	}
@@ -383,6 +383,35 @@ namespace mid {
 		this->events = events;
 	}
 
+	/*
+	TrackChunk::TrackChunk(const Chunk* other) {
+		this->chunkSignature = c::TRACK_SIGNATURE;
+		this->length = other->length;
+		for each(Event* event in other->events) {
+
+		}
+	}
+
+	TrackChunk::TrackChunk(const Chunk& other) {
+		this->chunkSignature = c::TRACK_SIGNATURE;
+		this->length = other.length;
+		for each(Event* event in other.events) {
+
+		}
+	}
+
+	TrackChunk::TrackChunk(const TrackChunk& other) {
+		chunkSignature = c::TRACK_SIGNATURE;
+		length = other.length;
+		events.clear();
+		for each(Event* event in other.events) {
+			if (event->eventType == c::META_EVENT) events.push_back(new MetaEvent(*event));
+			else if (event->eventType >= c::SYSEX_EVENT) events.push_back(new SysexEvent(*event));
+			else if (event->eventType >= c::NOTE_OFF && event->eventType < c::SYSEX_EVENT) events.push_back(new MidiEvent(*event));
+		}
+	}
+	*/
+
 	char* TrackChunk::toBitString() {
 		char* ret = new char[getLength()];
 		uint cursor = 0;
@@ -407,6 +436,32 @@ namespace mid {
 		this->trackCount = trackCount;
 		this->tickDivision = tickDivision;
 	}
+	
+	/*
+	HeaderChunk::HeaderChunk(const Chunk* other) {
+		chunkSignature = c::MIDI_SIGNATURE;
+		this->length = 6;
+		this->format = 0;
+		this->trackCount = 1;
+		this->tickDivision = 192;
+	}
+
+	HeaderChunk::HeaderChunk(const Chunk& other) {
+		chunkSignature = c::MIDI_SIGNATURE;
+		this->length = 6;
+		this->format = 0;
+		this->trackCount = 1;
+		this->tickDivision = 192;
+	}
+
+	HeaderChunk::HeaderChunk(const HeaderChunk& other) {
+		chunkSignature = c::MIDI_SIGNATURE;
+		length = 6;
+		format = other.format;
+		trackCount = other.trackCount;
+		tickDivision = other.tickDivision;
+	}
+	*/
 
 	char* HeaderChunk::toBitString() {
 		char* ret = new char[getLength()];
@@ -433,6 +488,14 @@ namespace mid {
 		this->eventLength = eventLength;
 	}
 
+	/*
+	MetaEvent::MetaEvent(const Event& other) {
+		timeDelta = 0;
+		eventType = 0xFF;
+		eventData = other.eventData;
+	}
+	*/
+
 	char* MetaEvent::toBitString() {
 		char* ret = new char[getLength()];
 		uint cursor = 0;
@@ -455,7 +518,6 @@ namespace mid {
 	SysexEvent::SysexEvent(VariableLengthValue timeDelta, uchar eventType, VariableLengthValue eventLength, std::vector<uchar> eventData) {
 		this->timeDelta = timeDelta;
 		this->eventType = eventType;
-		assert(eventType == 0xF0 || eventType == 0xF7);
 		this->eventData = eventData;
 		this->eventLength = eventLength;
 	}
@@ -506,9 +568,17 @@ namespace mid {
 		if (this->chunks.size() > 0) assert(this->chunks[0]->chunkSignature == c::MIDI_SIGNATURE);
 	}
 
+	/*
 	Midi::Midi(const Midi& other) {
-		chunks = other.chunks;
+		this->chunks.clear();
+		for each(Chunk* chunk in other.chunks) {
+			if (chunk->chunkSignature == c::MIDI_SIGNATURE) this->chunks.push_back(new HeaderChunk(*chunk));
+			if (chunk->chunkSignature == c::TRACK_SIGNATURE) this->chunks.push_back(new TrackChunk(*chunk));
+		}
 	}
+
+	Midi::~Midi() {}
+	*/
 
 	char* Midi::toBitString() {
 		uint counter = 0;
@@ -530,18 +600,17 @@ namespace mid {
 	void Midi::fromBitString(const char* bitString, uint fileSize) {
 		chunks.clear();
 		uint cursor = 0;
-		uint signature1 = sh::getIntFromBitString(cursor, bitString);
-		assert(signature1 == c::MIDI_SIGNATURE);
-		uint length1 = sh::getIntFromBitString(cursor, bitString);
-		ushort format1 = sh::getShortFromBitString(cursor, bitString);
-		ushort tracks1 = sh::getShortFromBitString(cursor, bitString);
-		ushort division1 = sh::getShortFromBitString(cursor, bitString);
-		Chunk* head = &HeaderChunk(length1, format1, tracks1, division1);
-		chunks.push_back(head);
+		uint signature = sh::getIntFromBitString(cursor, bitString);
+		assert(signature == c::MIDI_SIGNATURE);
+		uint length = sh::getIntFromBitString(cursor, bitString);
+		ushort format = sh::getShortFromBitString(cursor, bitString);
+		ushort tracks = sh::getShortFromBitString(cursor, bitString);
+		ushort division = sh::getShortFromBitString(cursor, bitString);
+		chunks.push_back(new HeaderChunk(length, format, tracks, division));
 		while (cursor < fileSize) {
-			uint signature = sh::getIntFromBitString(cursor, bitString);
+			signature = sh::getIntFromBitString(cursor, bitString);
 			assert(signature == c::TRACK_SIGNATURE);
-			uint length = sh::getIntFromBitString(cursor, bitString);
+			length = sh::getIntFromBitString(cursor, bitString);
 			uint endOfTrack = length + cursor;
 			std::vector<Event*> events;
 			while (cursor < endOfTrack) {
@@ -549,25 +618,25 @@ namespace mid {
 				uchar eventType = sh::getCharFromBitString(cursor, bitString);
 				if (eventType == c::META_EVENT) {
 					uchar metaEventType = sh::getCharFromBitString(cursor, bitString);
-					if (metaEventType = c::END_OF_TRACK) assert(cursor + 1 == endOfTrack);
-					vlv length = sh::getVLVFromBitString(cursor, bitString);
+					if (metaEventType == c::END_OF_TRACK) assert(cursor + 1 == endOfTrack);
+					vlv eventLength = sh::getVLVFromBitString(cursor, bitString);
 					std::vector<uchar> eventData = std::vector<uchar>(0);
-					if (length != 0) {
-						for (uint i = 0; i < length; i++) {
+					if (eventLength.toNumber() != 0) {
+						for (uint i = 0; i < eventLength.toNumber(); i++) {
 							eventData.push_back(sh::getCharFromBitString(cursor, bitString));
 						}
 					}
-					events.push_back(new MetaEvent(deltaTime, metaEventType, length, eventData));
+					events.push_back(new MetaEvent(deltaTime, metaEventType, eventLength, eventData));
 				}
 				else if (eventType < c::META_EVENT && eventType >= c::SYSEX_EVENT) {
-					vlv length = sh::getVLVFromBitString(cursor, bitString);
+					vlv eventLength = sh::getVLVFromBitString(cursor, bitString);
 					std::vector<uchar> eventData = std::vector<uchar>(0);
-					if (length != 0) {
-						for (uint i = 0; i < length; i++) {
+					if (eventLength.toNumber() != 0) {
+						for (uint i = 0; i < eventLength.toNumber(); i++) {
 							eventData.push_back(sh::getCharFromBitString(cursor, bitString));
 						}
 					}
-					events.push_back(new SysexEvent(deltaTime, eventType, length, eventData));
+					events.push_back(new SysexEvent(deltaTime, eventType, eventLength, eventData));
 				}
 				else if (eventType < c::SYSEX_EVENT && eventType >= c::NOTE_OFF) {
 					std::vector<uchar> eventData = std::vector<uchar>(0);
@@ -581,6 +650,7 @@ namespace mid {
 					events.push_back(new MidiEvent(deltaTime, eventType, eventData));
 				}
 			}
+			chunks.push_back(new TrackChunk(length, events));
 		}
 	}
 
