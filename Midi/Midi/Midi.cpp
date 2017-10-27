@@ -383,35 +383,6 @@ namespace mid {
 		this->events = events;
 	}
 
-	/*
-	TrackChunk::TrackChunk(const Chunk* other) {
-		this->chunkSignature = c::TRACK_SIGNATURE;
-		this->length = other->length;
-		for each(Event* event in other->events) {
-
-		}
-	}
-
-	TrackChunk::TrackChunk(const Chunk& other) {
-		this->chunkSignature = c::TRACK_SIGNATURE;
-		this->length = other.length;
-		for each(Event* event in other.events) {
-
-		}
-	}
-
-	TrackChunk::TrackChunk(const TrackChunk& other) {
-		chunkSignature = c::TRACK_SIGNATURE;
-		length = other.length;
-		events.clear();
-		for each(Event* event in other.events) {
-			if (event->eventType == c::META_EVENT) events.push_back(new MetaEvent(*event));
-			else if (event->eventType >= c::SYSEX_EVENT) events.push_back(new SysexEvent(*event));
-			else if (event->eventType >= c::NOTE_OFF && event->eventType < c::SYSEX_EVENT) events.push_back(new MidiEvent(*event));
-		}
-	}
-	*/
-
 	char* TrackChunk::toBitString() {
 		char* ret = new char[getLength()];
 		uint cursor = 0;
@@ -437,32 +408,6 @@ namespace mid {
 		this->tickDivision = tickDivision;
 	}
 	
-	/*
-	HeaderChunk::HeaderChunk(const Chunk* other) {
-		chunkSignature = c::MIDI_SIGNATURE;
-		this->length = 6;
-		this->format = 0;
-		this->trackCount = 1;
-		this->tickDivision = 192;
-	}
-
-	HeaderChunk::HeaderChunk(const Chunk& other) {
-		chunkSignature = c::MIDI_SIGNATURE;
-		this->length = 6;
-		this->format = 0;
-		this->trackCount = 1;
-		this->tickDivision = 192;
-	}
-
-	HeaderChunk::HeaderChunk(const HeaderChunk& other) {
-		chunkSignature = c::MIDI_SIGNATURE;
-		length = 6;
-		format = other.format;
-		trackCount = other.trackCount;
-		tickDivision = other.tickDivision;
-	}
-	*/
-
 	char* HeaderChunk::toBitString() {
 		char* ret = new char[getLength()];
 		uint cursor = 0;
@@ -567,18 +512,6 @@ namespace mid {
 		this->chunks = chunks;
 		if (this->chunks.size() > 0) assert(this->chunks[0]->chunkSignature == c::MIDI_SIGNATURE);
 	}
-
-	/*
-	Midi::Midi(const Midi& other) {
-		this->chunks.clear();
-		for each(Chunk* chunk in other.chunks) {
-			if (chunk->chunkSignature == c::MIDI_SIGNATURE) this->chunks.push_back(new HeaderChunk(*chunk));
-			if (chunk->chunkSignature == c::TRACK_SIGNATURE) this->chunks.push_back(new TrackChunk(*chunk));
-		}
-	}
-
-	Midi::~Midi() {}
-	*/
 
 	char* Midi::toBitString() {
 		uint counter = 0;

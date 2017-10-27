@@ -1,3 +1,8 @@
+1.0.0b (beta.1):
+file reading and writing complete
+Switched build from executable to library
+which means...... **drumroll** WE'RE IN BETA BABY!!!
+
 0.0.3.1a:
 D: = != == !!!
 
