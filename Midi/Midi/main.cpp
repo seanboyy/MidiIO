@@ -30,6 +30,7 @@ int main(int argc, char** argv) {
 	//uncomment the following to test file stuffs
 	Midi midi;
 	File::read("jauntyambience.mid", midi);
+	File::write("jauntyambience1.mid", midi);
 	system("pause");
 	return EXIT_SUCCESS;
 }

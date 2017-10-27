@@ -32,18 +32,18 @@ namespace mid {
 	}
 
 	ushort StreamingHelper::getShortFromBitString(uint& cursor, const char* bitString) {
-		ushort result = bitString[cursor++];
+		ushort result = (uchar)bitString[cursor++];
 		result <<= 8;
-		result |= bitString[cursor++];
+		result |= (uchar)bitString[cursor++];
 		return result;
 	}
 
 	uint StreamingHelper::getIntFromBitString(uint& cursor, const char* bitString) {
-		uint result = bitString[cursor++];
+		uint result = (uchar)bitString[cursor++];
 		result <<= 8;
-		result = (result | bitString[cursor++]) << 8;
-		result = (result | bitString[cursor++]) << 8;
-		result |= bitString[cursor++];
+		result = (result | (uchar)bitString[cursor++]) << 8;
+		result = (result | (uchar)bitString[cursor++]) << 8;
+		result |= (uchar)bitString[cursor++];
 		return result;
 	}
 
