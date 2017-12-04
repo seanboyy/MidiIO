@@ -621,4 +621,231 @@ namespace mid {
 	}
 
 	//---------------------END OF FILE CLASS---------------------//
+
+	template<typename T>
+	std::string Formatter::formatEvent(T eventIn) {
+		std::stringstream retStream;
+		if (T.eventType == c::META_EVENT) {
+			switch (T.metaEventType) {
+			case 0x00:
+				retStream << "Sequence Number";
+				ushort seqNum = T.eventData[0];
+				seqNum <<= 8;
+				seqNum |= T.eventData[1];
+				retStream << " " << seqNum << ",";
+				break;
+			case 0x01:
+				retStream << "Text: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x02:
+				retStream << "Copyright: ";
+				for each (uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x03:
+				retStream << "TrackName: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x04:
+				retStream << "Instrument: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x05:
+				retStream << "Lyric: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x06:
+				retStream << "Mark: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x07:
+				retStream << "Cue: ";
+				for each(uchar temp in T.eventData) {
+					retStream << temp;
+				}
+				retStream << ",";
+				break;
+			case 0x20:
+				retStream << "Channel " << (int)T.eventData[0] + 1 << ",";
+				break;
+			case 0x2F:
+				retStream << "END OF TRACK,";
+				break;
+			case 0x51:
+				retStream << "Tempo change: ";
+				uint tempo = T.eventData[0];
+				tempo <<= 8;
+				tempo |= T.eventData[1];
+				tempo <<= 8;
+				tempo |= T.eventData[2];
+				tempo = (uint)((1.0F / ((float)tempo / 60.0F)) * 1e+6);
+				retStream << tempo << " bpm,";
+				break;
+			case 0x54:
+				retStream << "SMTPE Offset: " << (uint)T.eventData[0] << "." << (uint)T.eventData[1] << "." << (uint)T.eventData[2] << "." << (uint)T.eventData[3] << "." << (uint)T.eventData[4] << ",";
+				break;
+			case 0x58:
+				retStream << "Time Signature: " << (uint)T.eventData[0] << "/" << (0x01 << (uint)T.eventData[1]) << ", " << (uint)T.eventData[2] << " clocks per tick, " << (uint)T.eventData[3] << " 32nd notes per 24 clocks,";
+				break;
+			case 0x59:
+				retStream << "Key Signature: ";
+				switch (T.eventData[1]) {
+				case 0:
+					switch ((char)T.eventData[0]) {
+					case -7:
+						retStream << "Cb Major,";
+						break;
+					case -6:
+						retStream << "Gb Major,";
+						break;
+					case -5:
+						retStream << "Db Major,";
+						break;
+					case -4:
+						retStream << "Ab Major,";
+						break;
+					case -3:
+						retStream << "Eb Major,";
+						break;
+					case -2:
+						retStream << "Bb Major,";
+						break;
+					case -1:
+						retStream << "F Major,";
+						break;
+					case 0:
+						retStream << "C Major,";
+						break;
+					case 1:
+						retStream << "G Major,";
+						break;
+					case 2:
+						retStream << "D Major,";
+						break;
+					case 3:
+						retStream << "A Major,";
+						break;
+					case 4:
+						retStream << "E Major,";
+						break;
+					case 5:
+						retStream << "B Major,";
+						break;
+					case 6:
+						retStream << "F# Major,";
+						break;
+					case 7:
+						retStream << "C# Major,";
+						break;
+					}
+					break;
+				case 1:
+					switch ((char)T.eventData[0]) {
+					case -7:
+						retStream << "Ab minor,";
+						break;
+					case -6:
+						retStream << "Eb minor,";
+						break;
+					case -5:
+						retStream << "Bb minor,";
+						break;
+					case -4:
+						retStream << "F minor,";
+						break;
+					case -3:
+						retStream << "C minor,";
+						break;
+					case -2:
+						retStream << "G minor,";
+						break;
+					case -1:
+						retStream << "D minor,";
+						break;
+					case 0:
+						retStream << "A minor,";
+						break;
+					case 1:
+						retStream << "E minor,";
+						break;
+					case 2:
+						retStream << "B minor,";
+						break;
+					case 3:
+						retStream << "F# minor,";
+						break;
+					case 4:
+						retStream << "C# minor,";
+						break;
+					case 5:
+						retStream << "G# minor,";
+						break;
+					case 6:
+						retStream << "D# minor,"
+						break;
+					case 7:
+						retStream << "A# minor,";
+						break;
+
+					}
+					break;
+				}
+				break;
+			case 0x7F:
+				retStream << "Sequencer Specific event,";
+				break;
+			}
+		}
+		else if (T.eventType >= c::SYSEX_EVENT) {
+			retStream << T.deltaTime.toNumber() << ",";
+			retStream << "System Exclusive Event,";
+		}
+		else if (T.eventType >= c::PITCH) {
+			retStream << T.deltaTime.toNumber() << ",";
+		}
+		else if (T.eventType >= c::CHANNEL_TOUCH) {
+			retStream << T.deltaTime.toNumber() << ",";
+		}
+		else if (T.eventType >= c::PROGRAM) {
+			retStream << T.deltaTime.toNumber() << ",";
+
+		}
+		else if (T.eventType >= c::CONTROL) {
+			retStream << T.deltaTime.toNumber() << ",";
+
+		}
+		else if (T.eventType >= c::POLY_TOUCH) {
+			retStream << T.deltaTime.toNumber() << ",";
+
+		}
+		else if (T.eventType >= c::NOTE_ON) {
+			retStream << T.deltaTime.toNumber() << ",";
+
+		}
+		else if (T.eventType >= c::NOTE_OFF) {
+			retStream << T.deltaTime.toNumber() << ",";
+
+		}
+		return retStream.str();
+	}
+
+	//---------------------END OF FORMATTER CLASS---------------------//
 }

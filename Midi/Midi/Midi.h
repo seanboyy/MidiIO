@@ -4,6 +4,8 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <sstream>
 
 namespace mid {
 
@@ -161,6 +163,15 @@ namespace mid {
 	public:
 		static bool read(const char*, Midi&);
 		static bool write(const char*, Midi);
+	};
+
+	class Formatter {
+	public:
+		template<typename T>
+		static std::string formatEvent(T);
+		template<typename T>
+		static std::string formatChunk(T);
+		static std::string formatMidi(Midi);
 	};
 
 	typedef class MidiConstants {
