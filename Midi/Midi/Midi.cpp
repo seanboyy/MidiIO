@@ -455,7 +455,7 @@ namespace mid {
 	}
 
 	uint MetaEvent::getLength() {
-		return timeDelta.getLength() + sizeof(eventType) + sizeof(metaEventType) + eventLength.getLength() + eventData.size();
+		return uint(timeDelta.getLength() + sizeof(eventType) + sizeof(metaEventType) + eventLength.getLength() + eventData.size());
 	}
 
 	//---------------------END OF METAEVENT CLASS---------------------//
@@ -480,7 +480,7 @@ namespace mid {
 	}
 
 	uint SysexEvent::getLength() {
-		return timeDelta.getLength() + sizeof(eventType) + eventLength.getLength() + eventData.size();
+		return uint(timeDelta.getLength() + sizeof(eventType) + eventLength.getLength() + eventData.size());
 	}
 
 	//---------------------END OF SYSEXEVENT CLASS---------------------//
@@ -503,7 +503,7 @@ namespace mid {
 	}
 
 	uint MidiEvent::getLength() {
-		return timeDelta.getLength() + sizeof(eventType) + eventData.size();
+		return uint(timeDelta.getLength() + sizeof(eventType) + eventData.size());
 	}
 
 	//---------------------END OF MIDIEVENT CLASS---------------------//
@@ -625,91 +625,92 @@ namespace mid {
 	template<typename T>
 	std::string Formatter::formatEvent(T eventIn) {
 		std::stringstream retStream;
-		if (T.eventType == c::META_EVENT) {
-			switch (T.metaEventType) {
+		if (eventIn->eventType == c::META_EVENT) {
+			MetaEvent* eventa = reinterpret_cast<MetaEvent*>(eventa);
+			switch (eventa->metaEventType) {
 			case 0x00:
 				retStream << "Sequence Number";
-				ushort seqNum = T.eventData[0];
+				ushort seqNum = eventa->eventData[0];
 				seqNum <<= 8;
-				seqNum |= T.eventData[1];
+				seqNum |= eventa->eventData[1];
 				retStream << " " << seqNum << ",";
 				break;
 			case 0x01:
 				retStream << "Text: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x02:
 				retStream << "Copyright: ";
-				for each (uchar temp in T.eventData) {
+				for each (uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x03:
 				retStream << "TrackName: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x04:
 				retStream << "Instrument: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x05:
 				retStream << "Lyric: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x06:
 				retStream << "Mark: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x07:
 				retStream << "Cue: ";
-				for each(uchar temp in T.eventData) {
+				for each(uchar temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x20:
-				retStream << "Channel " << (int)T.eventData[0] + 1 << ",";
+				retStream << "Channel " << (int)eventa->eventData[0] + 1 << ",";
 				break;
 			case 0x2F:
 				retStream << "END OF TRACK,";
 				break;
 			case 0x51:
 				retStream << "Tempo change: ";
-				uint tempo = T.eventData[0];
+				uint tempo = eventa->eventData[0];
 				tempo <<= 8;
-				tempo |= T.eventData[1];
+				tempo |= eventa->eventData[1];
 				tempo <<= 8;
-				tempo |= T.eventData[2];
+				tempo |= eventa->eventData[2];
 				tempo = (uint)((1.0F / ((float)tempo / 60.0F)) * 1e+6);
 				retStream << tempo << " bpm,";
 				break;
 			case 0x54:
-				retStream << "SMTPE Offset: " << (uint)T.eventData[0] << "." << (uint)T.eventData[1] << "." << (uint)T.eventData[2] << "." << (uint)T.eventData[3] << "." << (uint)T.eventData[4] << ",";
+				retStream << "SMTPE Offset: " << (uint)eventa->eventData[0] << "." << (uint)eventa->eventData[1] << "." << (uint)eventa->eventData[2] << "." << (uint)eventa->eventData[3] << "." << (uint)eventa->eventData[4] << ",";
 				break;
 			case 0x58:
-				retStream << "Time Signature: " << (uint)T.eventData[0] << "/" << (0x01 << (uint)T.eventData[1]) << ", " << (uint)T.eventData[2] << " clocks per tick, " << (uint)T.eventData[3] << " 32nd notes per 24 clocks,";
+				retStream << "Time Signature: " << (uint)eventa->eventData[0] << "/" << (0x01 << (uint)eventa->eventData[1]) << ", " << (uint)eventa->eventData[2] << " clocks per tick, " << (uint)eventa->eventData[3] << " 32nd notes per 24 clocks,";
 				break;
 			case 0x59:
 				retStream << "Key Signature: ";
-				switch (T.eventData[1]) {
+				switch (eventa->eventData[1]) {
 				case 0:
-					switch ((char)T.eventData[0]) {
+					switch ((char)eventa->eventData[0]) {
 					case -7:
 						retStream << "Cb Major,";
 						break;
@@ -758,7 +759,7 @@ namespace mid {
 					}
 					break;
 				case 1:
-					switch ((char)T.eventData[0]) {
+					switch ((char)eventa->eventData[0]) {
 					case -7:
 						retStream << "Ab minor,";
 						break;
@@ -799,50 +800,67 @@ namespace mid {
 						retStream << "G# minor,";
 						break;
 					case 6:
-						retStream << "D# minor,"
+						retStream << "D# minor,";
 						break;
 					case 7:
 						retStream << "A# minor,";
 						break;
 
-					}
+					};
 					break;
-				}
+				};
 				break;
 			case 0x7F:
 				retStream << "Sequencer Specific event,";
 				break;
-			}
+			};
 		}
-		else if (T.eventType >= c::SYSEX_EVENT) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::SYSEX_EVENT) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 			retStream << "System Exclusive Event,";
 		}
-		else if (T.eventType >= c::PITCH) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::PITCH) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 		}
-		else if (T.eventType >= c::CHANNEL_TOUCH) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::CHANNEL_TOUCH) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 		}
-		else if (T.eventType >= c::PROGRAM) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::PROGRAM) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 
 		}
-		else if (T.eventType >= c::CONTROL) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::CONTROL) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 
 		}
-		else if (T.eventType >= c::POLY_TOUCH) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::POLY_TOUCH) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 
 		}
-		else if (T.eventType >= c::NOTE_ON) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::NOTE_ON) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 
 		}
-		else if (T.eventType >= c::NOTE_OFF) {
-			retStream << T.deltaTime.toNumber() << ",";
+		else if (eventIn->eventType >= c::NOTE_OFF) {
+			retStream << eventIn->timeDelta.toNumber() << ",";
 
+		}
+		return retStream.str();
+	}
+
+	template<typename T>
+	std::string Formatter::formatChunk(T chunkIn) {
+		std::stringstream retStream;
+		for (Event* e : chunkIn->events) {
+			retStream << formatEvent(e);
+		}
+		return retStream.str();
+	}
+
+	std::string Formatter::formatMidi(Midi midiIn) {
+		std::stringstream retStream;
+		for (Chunk* c : midiIn.chunks) {
+			retStream << formatChunk(c);
 		}
 		return retStream.str();
 	}

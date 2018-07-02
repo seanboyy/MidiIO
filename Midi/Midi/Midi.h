@@ -101,7 +101,6 @@ namespace mid {
 		MetaEvent(VariableLengthValue timeDelta = VariableLengthValue(), uchar metaEventType = 0x00, VariableLengthValue eventLength = VariableLengthValue(), std::vector<uchar> eventData = std::vector<uchar>(0));
 		char* toBitString();
 		uint getLength();
-	private:
 		uchar metaEventType;
 		VariableLengthValue eventLength;
 	};
@@ -155,7 +154,6 @@ namespace mid {
 		char* toBitString();
 		void fromBitString(const char*, uint);
 		uint getLength();
-	private:
 		std::vector<Chunk*> chunks;
 	};
 
