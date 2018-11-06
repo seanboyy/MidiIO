@@ -245,3 +245,7 @@ ModelManifest.xml
 # Mercurial trash
 .hg/
 .hgignore
+
+# IntelliJ Stuff:
+**/*.iml/
+**/.idea/

@@ -2,56 +2,56 @@
 
 namespace mid {
 	template<typename T>
-	void StreamingHelper::streamValueToBitString(uint& cursor, char*& bitString, T value) {
-		for (uint i = 0; i < sizeof(value); i++) {
+	void StreamingHelper::streamValueToBitString(uint32_t& cursor, char*& bitString, T value) {
+		for (uint32_t i = 0; i < sizeof(value); i++) {
 			bitString[cursor] = (value << (8 * i)) >> (8 * (sizeof(value) - 1));
 			cursor++;
 		}
 	}
 
 	template<typename T>
-	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T object, uint length) {
+	void StreamingHelper::streamObjectToBitString(uint32_t& cursor, char*& bitString, T object, uint32_t length) {
 		char* objStr = object.toBitString();
-		for (uint i = 0; i < length; i++) {
+		for (uint32_t i = 0; i < length; i++) {
 			bitString[cursor] = objStr[i];
 			cursor++;
 		}
 	}
 
 	template<typename T>
-	void StreamingHelper::streamObjectToBitString(uint& cursor, char*& bitString, T* object, uint length) {
+	void StreamingHelper::streamObjectToBitString(uint32_t& cursor, char*& bitString, T* object, uint32_t length) {
 		char* objStr = object->toBitString();
-		for (uint i = 0; i < length; i++) {
+		for (uint32_t i = 0; i < length; i++) {
 			bitString[cursor] = objStr[i];
 			cursor++;
 		}
 	}
 
-	uchar StreamingHelper::getCharFromBitString(uint& cursor, const char* bitString) {
+	uint8_t StreamingHelper::getCharFromBitString(uint32_t& cursor, const char* bitString) {
 		return bitString[cursor++];
 	}
 
-	ushort StreamingHelper::getShortFromBitString(uint& cursor, const char* bitString) {
-		ushort result = (uchar)bitString[cursor++];
+	uint16_t StreamingHelper::getShortFromBitString(uint32_t& cursor, const char* bitString) {
+		uint16_t result = (uint8_t)bitString[cursor++];
 		result <<= 8;
-		result |= (uchar)bitString[cursor++];
+		result |= (uint8_t)bitString[cursor++];
 		return result;
 	}
 
-	uint StreamingHelper::getIntFromBitString(uint& cursor, const char* bitString) {
-		uint result = (uchar)bitString[cursor++];
+	uint32_t StreamingHelper::getIntFromBitString(uint32_t& cursor, const char* bitString) {
+		uint32_t result = (uint8_t)bitString[cursor++];
 		result <<= 8;
-		result = (result | (uchar)bitString[cursor++]) << 8;
-		result = (result | (uchar)bitString[cursor++]) << 8;
-		result |= (uchar)bitString[cursor++];
+		result = (result | (uint8_t)bitString[cursor++]) << 8;
+		result = (result | (uint8_t)bitString[cursor++]) << 8;
+		result |= (uint8_t)bitString[cursor++];
 		return result;
 	}
 
-	VariableLengthValue StreamingHelper::getVLVFromBitString(uint& cursor, const char* bitString) {
-		uint length = 1;
-		uint value = 0;
-		for (uint i = 0; i < length; i++) {
-			uchar tempByte = getCharFromBitString(cursor, bitString);
+	VariableLengthValue StreamingHelper::getVLVFromBitString(uint32_t& cursor, const char* bitString) {
+		uint32_t length = 1;
+		uint32_t value = 0;
+		for (uint32_t i = 0; i < length; i++) {
+			uint8_t tempByte = getCharFromBitString(cursor, bitString);
 			if ((tempByte & 0x80) == 0x80) length++;
 			value |= tempByte;
 			if (!(i == length - 1)) value <<= 8;
@@ -62,7 +62,7 @@ namespace mid {
 	//---------------------END OF STREAMINGHELPER CLASS---------------------//
 
 
-	VariableLengthValue::VariableLengthValue(uint data) {
+	VariableLengthValue::VariableLengthValue(uint32_t data) {
 		toVariableLength(data);
 	}
 
@@ -70,10 +70,10 @@ namespace mid {
 		*this = other;
 	}
 
-	uint VariableLengthValue::toNumber() {
-		uint result = 0;
+	uint32_t VariableLengthValue::toNumber() {
+		uint32_t result = 0;
 		if (value <= VariableLengthValue::VLV_MAX_VAL) {
-			uchar b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+			uint8_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
 			b4 |= (value & 0x0000007F);
 			b4 |= (value & 0x00000100) >> 1;
 			b3 |= (value & 0x00007E00) >> 9;
@@ -92,10 +92,10 @@ namespace mid {
 		return result;
 	}
 
-	uint VariableLengthValue::toNumber(uint in) {
-		uint result = 0;
+	uint32_t VariableLengthValue::toNumber(uint32_t in) {
+		uint32_t result = 0;
 		if (in <= VariableLengthValue::VLV_MAX_VAL) {
-			uchar b1 = 0, b2 = 0, b3 = 0, b4 = 0;
+			uint8_t b1 = 0, b2 = 0, b3 = 0, b4 = 0;
 			b4 |= (in & 0x0000007F);
 			b4 |= (in & 0x00000100) >> 1;
 			b3 |= (in & 0x00007E00) >> 9;
@@ -111,7 +111,7 @@ namespace mid {
 		return result;
 	}
 
-	void VariableLengthValue::toVariableLength(uint in) {
+	void VariableLengthValue::toVariableLength(uint32_t in) {
 		value = 0;
 		length = 0;
 		assert(in <= VariableLengthValue::VLV_MAX_IN);
@@ -120,7 +120,7 @@ namespace mid {
 			value = in;
 		}
 		else if (in < 0x00004000) {
-			uchar b1, b2;
+			uint8_t b1, b2;
 			b1 = 0x00000080;
 			b2 = 0x00000000;
 			b2 |= (in & 0x0000007F);
@@ -130,7 +130,7 @@ namespace mid {
 			value = (value | b2);
 		}
 		else if (in < 0x00200000) {
-			uchar b1, b2, b3;
+			uint8_t b1, b2, b3;
 			b1 = 0x00000080;
 			b2 = 0x00000080;
 			b3 = 0x00000000;
@@ -144,7 +144,7 @@ namespace mid {
 
 		}
 		else if (in < 0x10000000) {
-			uchar b1, b2, b3, b4;
+			uint8_t b1, b2, b3, b4;
 			b1 = 0x00000080;
 			b2 = 0x00000080;
 			b3 = 0x00000080;
@@ -184,22 +184,22 @@ namespace mid {
 		return ret;
 	}
 
-	uint VariableLengthValue::getLength() {
+	uint32_t VariableLengthValue::getLength() {
 		return length;
 	}
 
 		//---------------------BEGIN OPERATOR SECTION---------------------//
 
-	VariableLengthValue::operator uint() {
+	VariableLengthValue::operator uint32_t() {
 		return toNumber();
 	}
 
-	void VariableLengthValue::operator= (uint rhs) {
+	void VariableLengthValue::operator= (uint32_t rhs) {
 		toVariableLength(rhs);
 	}
 
 	void VariableLengthValue::operator= (int rhs) {
-		toVariableLength((uint)rhs);
+		toVariableLength((uint32_t)rhs);
 	}
 
 	void VariableLengthValue::operator= (const VariableLengthValue& rhs) {
@@ -208,20 +208,20 @@ namespace mid {
 	}
 
 	void operator! (VariableLengthValue& lhs) {
-		uint temp = lhs.toNumber() ^ 0xFFFFFFFF;
+		uint32_t temp = lhs.toNumber() ^ 0xFFFFFFFF;
 		if (temp > VariableLengthValue::VLV_MAX_IN) temp = VariableLengthValue::VLV_MAX_IN;
 		lhs.toVariableLength(temp);
 	}
 
-	bool operator== (VariableLengthValue& lhs, uint rhs) {
-		return (uint)lhs == rhs;
+	bool operator== (VariableLengthValue& lhs, uint32_t rhs) {
+		return (uint32_t)lhs == rhs;
 	}
 
 	bool operator== (VariableLengthValue& lhs, int rhs) {
-		return (uint)lhs == (uint)rhs;
+		return (uint32_t)lhs == (uint32_t)rhs;
 	}
 
-	bool operator!= (VariableLengthValue& lhs, uint rhs) {
+	bool operator!= (VariableLengthValue& lhs, uint32_t rhs) {
 		return !(lhs == rhs);
 	}
 
@@ -229,23 +229,23 @@ namespace mid {
 		return !(lhs == rhs);
 	}
 
-	bool operator< (VariableLengthValue& lhs, uint rhs) {
-		return (uint)lhs < rhs;
+	bool operator< (VariableLengthValue& lhs, uint32_t rhs) {
+		return (uint32_t)lhs < rhs;
 	}
 
 	bool operator< (VariableLengthValue& lhs, int rhs) {
-		return (uint)lhs < (uint)rhs;
+		return (uint32_t)lhs < (uint32_t)rhs;
 	}
 
-	bool operator> (VariableLengthValue& lhs, uint rhs) {
-		return (uint)lhs > rhs;
+	bool operator> (VariableLengthValue& lhs, uint32_t rhs) {
+		return (uint32_t)lhs > rhs;
 	}
 
 	bool operator> (VariableLengthValue& lhs, int rhs) {
-		return (uint)lhs > (uint)rhs;
+		return (uint32_t)lhs > (uint32_t)rhs;
 	}
 
-	bool operator<= (VariableLengthValue& lhs, uint rhs) {
+	bool operator<= (VariableLengthValue& lhs, uint32_t rhs) {
 		return !(lhs > rhs);
 	}
 
@@ -253,7 +253,7 @@ namespace mid {
 		return !(lhs > rhs);
 	}
 
-	bool operator>= (VariableLengthValue& lhs, uint rhs) {
+	bool operator>= (VariableLengthValue& lhs, uint32_t rhs) {
 		return !(lhs < rhs);
 	}
 
@@ -261,47 +261,47 @@ namespace mid {
 		return !(lhs < rhs);
 	}
 
-	VariableLengthValue operator+ (VariableLengthValue& lhs, uint rhs) {
-		return ((uint)lhs + rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint)lhs + rhs);
+	VariableLengthValue operator+ (VariableLengthValue& lhs, uint32_t rhs) {
+		return ((uint32_t)lhs + rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint32_t)lhs + rhs);
 	}
 
 	VariableLengthValue operator+ (VariableLengthValue& lhs, int rhs) {
-		return VariableLengthValue(lhs + (uint)rhs);
+		return VariableLengthValue(lhs + (uint32_t)rhs);
 	}
 
-	VariableLengthValue operator- (VariableLengthValue& lhs, uint rhs) {
-		return (int)((uint)lhs - rhs) < 0 ? VariableLengthValue(0) : VariableLengthValue((uint)lhs - rhs);
+	VariableLengthValue operator- (VariableLengthValue& lhs, uint32_t rhs) {
+		return (int)((uint32_t)lhs - rhs) < 0 ? VariableLengthValue(0) : VariableLengthValue((uint32_t)lhs - rhs);
 	}
 
 	VariableLengthValue operator- (VariableLengthValue& lhs, int rhs) {
-		return VariableLengthValue(lhs - (uint)rhs);
+		return VariableLengthValue(lhs - (uint32_t)rhs);
 	}
 
-	VariableLengthValue operator* (VariableLengthValue& lhs, uint rhs) {
-		return ((uint)lhs * rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint)lhs * rhs);
+	VariableLengthValue operator* (VariableLengthValue& lhs, uint32_t rhs) {
+		return ((uint32_t)lhs * rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint32_t)lhs * rhs);
 	}
 
 	VariableLengthValue operator* (VariableLengthValue& lhs, int rhs) {
-		return VariableLengthValue(lhs * (uint)rhs);
+		return VariableLengthValue(lhs * (uint32_t)rhs);
 	}
 
-	VariableLengthValue operator/ (VariableLengthValue& lhs, uint rhs) {
-		return ((uint)lhs / rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint)lhs / rhs);
+	VariableLengthValue operator/ (VariableLengthValue& lhs, uint32_t rhs) {
+		return ((uint32_t)lhs / rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint32_t)lhs / rhs);
 	}
 
 	VariableLengthValue operator/ (VariableLengthValue& lhs, int rhs) {
-		return VariableLengthValue(lhs / (uint)rhs);
+		return VariableLengthValue(lhs / (uint32_t)rhs);
 	}
 
-	VariableLengthValue operator<< (VariableLengthValue& lhs, uint rhs) {
-		return ((uint)lhs << rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint)lhs << rhs);
+	VariableLengthValue operator<< (VariableLengthValue& lhs, uint32_t rhs) {
+		return ((uint32_t)lhs << rhs) > VariableLengthValue::VLV_MAX_IN ? VariableLengthValue(VariableLengthValue::VLV_MAX_IN) : VariableLengthValue((uint32_t)lhs << rhs);
 	}
 
 	VariableLengthValue operator<< (VariableLengthValue& lhs, int rhs) {
-		return VariableLengthValue(lhs << (uint)rhs);
+		return VariableLengthValue(lhs << (uint32_t)rhs);
 	}
 
-	VariableLengthValue& operator+= (VariableLengthValue& lhs, uint rhs) {
+	VariableLengthValue& operator+= (VariableLengthValue& lhs, uint32_t rhs) {
 		lhs = lhs + rhs;
 		return lhs;
 	}
@@ -311,7 +311,7 @@ namespace mid {
 		return lhs;
 	}
 
-	VariableLengthValue& operator-= (VariableLengthValue& lhs, uint rhs) {
+	VariableLengthValue& operator-= (VariableLengthValue& lhs, uint32_t rhs) {
 		lhs = lhs - rhs;
 		return lhs;
 	}
@@ -321,7 +321,7 @@ namespace mid {
 		return lhs;
 	}
 
-	VariableLengthValue& operator*= (VariableLengthValue& lhs, uint rhs) {
+	VariableLengthValue& operator*= (VariableLengthValue& lhs, uint32_t rhs) {
 		lhs = lhs * rhs;
 		return lhs;
 	}
@@ -331,7 +331,7 @@ namespace mid {
 		return lhs;
 	}
 
-	VariableLengthValue& operator/= (VariableLengthValue& lhs, uint rhs) {
+	VariableLengthValue& operator/= (VariableLengthValue& lhs, uint32_t rhs) {
 		lhs = lhs / rhs;
 		return lhs;
 	}
@@ -341,7 +341,7 @@ namespace mid {
 		return lhs;
 	}
 
-	VariableLengthValue& operator<<= (VariableLengthValue& lhs, uint rhs) {
+	VariableLengthValue& operator<<= (VariableLengthValue& lhs, uint32_t rhs) {
 		lhs = lhs << rhs;
 		return lhs;
 	}
@@ -352,32 +352,32 @@ namespace mid {
 	}
 
 	VariableLengthValue& operator++ (VariableLengthValue& operand) {
-		operand.toVariableLength((uint)(operand + 1U));
+		operand.toVariableLength((uint32_t)(operand + 1U));
 		return operand;
 	}
 
 	VariableLengthValue operator++ (VariableLengthValue& operand, int amt) {
 		VariableLengthValue temp = operand;
-		if (amt != 0) operand.toVariableLength((uint)(operand + (uint)amt));
-		else operand.toVariableLength((uint)(operand + 1U));
+		if (amt != 0) operand.toVariableLength((uint32_t)(operand + (uint32_t)amt));
+		else operand.toVariableLength((uint32_t)(operand + 1U));
 		return temp;
 	}
 
 	VariableLengthValue& operator-- (VariableLengthValue& operand) {
-		operand.toVariableLength((uint)(operand + 1U));
+		operand.toVariableLength((uint32_t)(operand + 1U));
 		return operand;
 	}
 
 	VariableLengthValue operator-- (VariableLengthValue& operand, int amt) {
 		VariableLengthValue temp = operand;
-		if (amt != 0) operand.toVariableLength((uint)(operand + (uint)amt));
-		else operand.toVariableLength((uint)(operand + 1U));
+		if (amt != 0) operand.toVariableLength((uint32_t)(operand + (uint32_t)amt));
+		else operand.toVariableLength((uint32_t)(operand + 1U));
 		return temp;
 	}
 
 	//---------------------END OF VARIABLELENGTHVALUE CLASS---------------------//
 
-	TrackChunk::TrackChunk(uint length, std::vector<Event*> events) {
+	TrackChunk::TrackChunk(uint32_t length, std::vector<Event*> events) {
 		this->chunkSignature = c::TRACK_SIGNATURE;
 		this->length = length;
 		this->events = events;
@@ -385,22 +385,22 @@ namespace mid {
 
 	char* TrackChunk::toBitString() {
 		char* ret = new char[getLength()];
-		uint cursor = 0;
+		uint32_t cursor = 0;
 		sh::streamValueToBitString(cursor, ret, chunkSignature);
 		sh::streamValueToBitString(cursor, ret, length);
-		for (uint i = 0; i < events.size(); i++) {
+		for (uint32_t i = 0; i < events.size(); i++) {
 			sh::streamObjectToBitString(cursor, ret, events[i], events[i]->getLength());
 		}
 		return ret;
 	}
 
-	uint TrackChunk::getLength() {
+	uint32_t TrackChunk::getLength() {
 		return sizeof(chunkSignature) + sizeof(length) + length;
 	}
 
 	//---------------------END OF TRACKCHUNK CLASS---------------------//
 
-	HeaderChunk::HeaderChunk(uint length, ushort format, ushort trackCount, ushort tickDivision) {
+	HeaderChunk::HeaderChunk(uint32_t length, uint16_t format, uint16_t trackCount, uint16_t tickDivision) {
 		chunkSignature = c::MIDI_SIGNATURE;
 		this->length = length;
 		this->format = format;
@@ -410,7 +410,7 @@ namespace mid {
 	
 	char* HeaderChunk::toBitString() {
 		char* ret = new char[getLength()];
-		uint cursor = 0;
+		uint32_t cursor = 0;
 		sh::streamValueToBitString(cursor, ret, chunkSignature);
 		sh::streamValueToBitString(cursor, ret, length);
 		sh::streamValueToBitString(cursor, ret, format);
@@ -419,13 +419,13 @@ namespace mid {
 		return ret;
 	}
 
-	uint HeaderChunk::getLength() {
+	uint32_t HeaderChunk::getLength() {
 		return sizeof(chunkSignature) + sizeof(length) + length;
 	}
 	
 	//---------------------END OF HEADERCHUNK CLASS---------------------//
 
-	MetaEvent::MetaEvent(VariableLengthValue timeDelta, uchar metaEventType, VariableLengthValue eventLength, std::vector<uchar> eventData) {
+	MetaEvent::MetaEvent(VariableLengthValue timeDelta, uint8_t metaEventType, VariableLengthValue eventLength, std::vector<uint8_t> eventData) {
 		this->timeDelta = timeDelta;
 		this->eventType = 0xFF;
 		this->eventData = eventData;
@@ -443,24 +443,24 @@ namespace mid {
 
 	char* MetaEvent::toBitString() {
 		char* ret = new char[getLength()];
-		uint cursor = 0;
+		uint32_t cursor = 0;
 		sh::streamObjectToBitString(cursor, ret, timeDelta, timeDelta.getLength());
 		sh::streamValueToBitString(cursor, ret, eventType);
 		sh::streamValueToBitString(cursor, ret, metaEventType);
 		sh::streamObjectToBitString(cursor, ret, eventLength, eventLength.getLength());
-		for (uchar byte : eventData) {
+		for (uint8_t byte : eventData) {
 			sh::streamValueToBitString(cursor, ret, byte);
 		}
 		return ret;
 	}
 
-	uint MetaEvent::getLength() {
-		return uint(timeDelta.getLength() + sizeof(eventType) + sizeof(metaEventType) + eventLength.getLength() + eventData.size());
+	uint32_t MetaEvent::getLength() {
+		return uint32_t(timeDelta.getLength() + sizeof(eventType) + sizeof(metaEventType) + eventLength.getLength() + eventData.size());
 	}
 
 	//---------------------END OF METAEVENT CLASS---------------------//
 
-	SysexEvent::SysexEvent(VariableLengthValue timeDelta, uchar eventType, VariableLengthValue eventLength, std::vector<uchar> eventData) {
+	SysexEvent::SysexEvent(VariableLengthValue timeDelta, uint8_t eventType, VariableLengthValue eventLength, std::vector<uint8_t> eventData) {
 		this->timeDelta = timeDelta;
 		this->eventType = eventType;
 		this->eventData = eventData;
@@ -469,23 +469,23 @@ namespace mid {
 
 	char* SysexEvent::toBitString() {
 		char* ret = new char[getLength()];
-		uint cursor = 0;
+		uint32_t cursor = 0;
 		sh::streamObjectToBitString(cursor, ret, timeDelta, timeDelta.getLength());
 		sh::streamValueToBitString(cursor, ret, eventType);
 		sh::streamObjectToBitString(cursor, ret, eventLength, eventLength.getLength());
-		for (uchar byte : eventData) {
+		for (uint8_t byte : eventData) {
 			sh::streamValueToBitString(cursor, ret, byte);
 		}
 		return ret;
 	}
 
-	uint SysexEvent::getLength() {
-		return uint(timeDelta.getLength() + sizeof(eventType) + eventLength.getLength() + eventData.size());
+	uint32_t SysexEvent::getLength() {
+		return uint32_t(timeDelta.getLength() + sizeof(eventType) + eventLength.getLength() + eventData.size());
 	}
 
 	//---------------------END OF SYSEXEVENT CLASS---------------------//
 
-	MidiEvent::MidiEvent(VariableLengthValue timeDelta, uchar eventType, std::vector<uchar> eventData) {
+	MidiEvent::MidiEvent(VariableLengthValue timeDelta, uint8_t eventType, std::vector<uint8_t> eventData) {
 		this->timeDelta = timeDelta;
 		this->eventType = eventType;
 		this->eventData = eventData;
@@ -493,17 +493,17 @@ namespace mid {
 
 	char* MidiEvent::toBitString() {
 		char* ret = new char[getLength()];
-		uint cursor = 0;
+		uint32_t cursor = 0;
 		sh::streamObjectToBitString(cursor, ret, timeDelta, timeDelta.getLength());
 		sh::streamValueToBitString(cursor, ret, eventType);
-		for (uchar byte : eventData) {
+		for (uint8_t byte : eventData) {
 			sh::streamValueToBitString(cursor, ret, byte);
 		}
 		return ret;
 	}
 
-	uint MidiEvent::getLength() {
-		return uint(timeDelta.getLength() + sizeof(eventType) + eventData.size());
+	uint32_t MidiEvent::getLength() {
+		return uint32_t(timeDelta.getLength() + sizeof(eventType) + eventData.size());
 	}
 
 	//---------------------END OF MIDIEVENT CLASS---------------------//
@@ -514,48 +514,48 @@ namespace mid {
 	}
 
 	char* Midi::toBitString() {
-		uint counter = 0;
+		uint32_t counter = 0;
 		char* dataStreamString = new char[getLength()];
-		for (uint i = 0; i < chunks.size(); i++) {
+		for (uint32_t i = 0; i < chunks.size(); i++) {
 			sh::streamObjectToBitString(counter, dataStreamString, chunks[i], chunks[i]->getLength());
 		}
 		return dataStreamString;
 	}
 
-	uint Midi::getLength() {
-		uint length = 0;
-		for (uint i = 0; i < chunks.size(); i++) {
+	uint32_t Midi::getLength() {
+		uint32_t length = 0;
+		for (uint32_t i = 0; i < chunks.size(); i++) {
 			length += chunks[i]->getLength();
 		}
 		return length;
 	}
 
-	void Midi::fromBitString(const char* bitString, uint fileSize) {
+	void Midi::fromBitString(const char* bitString, uint32_t fileSize) {
 		chunks.clear();
-		uint cursor = 0;
-		uint signature = sh::getIntFromBitString(cursor, bitString);
+		uint32_t cursor = 0;
+		uint32_t signature = sh::getIntFromBitString(cursor, bitString);
 		assert(signature == c::MIDI_SIGNATURE);
-		uint length = sh::getIntFromBitString(cursor, bitString);
-		ushort format = sh::getShortFromBitString(cursor, bitString);
-		ushort tracks = sh::getShortFromBitString(cursor, bitString);
-		ushort division = sh::getShortFromBitString(cursor, bitString);
+		uint32_t length = sh::getIntFromBitString(cursor, bitString);
+		uint16_t format = sh::getShortFromBitString(cursor, bitString);
+		uint16_t tracks = sh::getShortFromBitString(cursor, bitString);
+		uint16_t division = sh::getShortFromBitString(cursor, bitString);
 		chunks.push_back(new HeaderChunk(length, format, tracks, division));
 		while (cursor < fileSize) {
 			signature = sh::getIntFromBitString(cursor, bitString);
 			assert(signature == c::TRACK_SIGNATURE);
 			length = sh::getIntFromBitString(cursor, bitString);
-			uint endOfTrack = length + cursor;
+			uint32_t endOfTrack = length + cursor;
 			std::vector<Event*> events;
 			while (cursor < endOfTrack) {
 				vlv deltaTime = sh::getVLVFromBitString(cursor, bitString);
-				uchar eventType = sh::getCharFromBitString(cursor, bitString);
+				uint8_t eventType = sh::getCharFromBitString(cursor, bitString);
 				if (eventType == c::META_EVENT) {
-					uchar metaEventType = sh::getCharFromBitString(cursor, bitString);
+					uint8_t metaEventType = sh::getCharFromBitString(cursor, bitString);
 					if (metaEventType == c::END_OF_TRACK) assert(cursor + 1 == endOfTrack);
 					vlv eventLength = sh::getVLVFromBitString(cursor, bitString);
-					std::vector<uchar> eventData = std::vector<uchar>(0);
+					std::vector<uint8_t> eventData = std::vector<uint8_t>(0);
 					if (eventLength.toNumber() != 0) {
-						for (uint i = 0; i < eventLength.toNumber(); i++) {
+						for (uint32_t i = 0; i < eventLength.toNumber(); i++) {
 							eventData.push_back(sh::getCharFromBitString(cursor, bitString));
 						}
 					}
@@ -563,16 +563,16 @@ namespace mid {
 				}
 				else if (eventType < c::META_EVENT && eventType >= c::SYSEX_EVENT) {
 					vlv eventLength = sh::getVLVFromBitString(cursor, bitString);
-					std::vector<uchar> eventData = std::vector<uchar>(0);
+					std::vector<uint8_t> eventData = std::vector<uint8_t>(0);
 					if (eventLength.toNumber() != 0) {
-						for (uint i = 0; i < eventLength.toNumber(); i++) {
+						for (uint32_t i = 0; i < eventLength.toNumber(); i++) {
 							eventData.push_back(sh::getCharFromBitString(cursor, bitString));
 						}
 					}
 					events.push_back(new SysexEvent(deltaTime, eventType, eventLength, eventData));
 				}
 				else if (eventType < c::SYSEX_EVENT && eventType >= c::NOTE_OFF) {
-					std::vector<uchar> eventData = std::vector<uchar>(0);
+					std::vector<uint8_t> eventData = std::vector<uint8_t>(0);
 					if (eventType < c::PROGRAM || eventType >= c::PITCH) {
 						eventData.push_back(sh::getCharFromBitString(cursor, bitString));
 						eventData.push_back(sh::getCharFromBitString(cursor, bitString));
@@ -595,7 +595,7 @@ namespace mid {
 			return false;
 		}
 		char temp;
-		uint filesize = 0;
+		uint32_t filesize = 0;
 		while (!fin.eof()) {
 			temp = fin.get();
 			filesize++;
@@ -614,7 +614,7 @@ namespace mid {
 		if (fout.fail()) {
 			return false;
 		}
-		uint filesize = midi.getLength();
+		uint32_t filesize = midi.getLength();
 		fout.write(midi.toBitString(), filesize);
 		fout.close();
 		return true;
@@ -630,56 +630,56 @@ namespace mid {
 			switch (eventa->metaEventType) {
 			case 0x00:
 				retStream << "Sequence Number";
-				ushort seqNum = eventa->eventData[0];
+				uint16_t seqNum = eventa->eventData[0];
 				seqNum <<= 8;
 				seqNum |= eventa->eventData[1];
 				retStream << " " << seqNum << ",";
 				break;
 			case 0x01:
 				retStream << "Text: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x02:
 				retStream << "Copyright: ";
-				for each (uchar temp in eventa->eventData) {
+				for each (uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x03:
 				retStream << "TrackName: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x04:
 				retStream << "Instrument: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x05:
 				retStream << "Lyric: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x06:
 				retStream << "Mark: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
 				break;
 			case 0x07:
 				retStream << "Cue: ";
-				for each(uchar temp in eventa->eventData) {
+				for each(uint8_t temp in eventa->eventData) {
 					retStream << temp;
 				}
 				retStream << ",";
@@ -692,19 +692,19 @@ namespace mid {
 				break;
 			case 0x51:
 				retStream << "Tempo change: ";
-				uint tempo = eventa->eventData[0];
+				uint32_t tempo = eventa->eventData[0];
 				tempo <<= 8;
 				tempo |= eventa->eventData[1];
 				tempo <<= 8;
 				tempo |= eventa->eventData[2];
-				tempo = (uint)((1.0F / ((float)tempo / 60.0F)) * 1e+6);
+				tempo = (uint32_t)((1.0F / ((float)tempo / 60.0F)) * 1e+6);
 				retStream << tempo << " bpm,";
 				break;
 			case 0x54:
-				retStream << "SMTPE Offset: " << (uint)eventa->eventData[0] << "." << (uint)eventa->eventData[1] << "." << (uint)eventa->eventData[2] << "." << (uint)eventa->eventData[3] << "." << (uint)eventa->eventData[4] << ",";
+				retStream << "SMTPE Offset: " << (uint32_t)eventa->eventData[0] << "." << (uint32_t)eventa->eventData[1] << "." << (uint32_t)eventa->eventData[2] << "." << (uint32_t)eventa->eventData[3] << "." << (uint32_t)eventa->eventData[4] << ",";
 				break;
 			case 0x58:
-				retStream << "Time Signature: " << (uint)eventa->eventData[0] << "/" << (0x01 << (uint)eventa->eventData[1]) << ", " << (uint)eventa->eventData[2] << " clocks per tick, " << (uint)eventa->eventData[3] << " 32nd notes per 24 clocks,";
+				retStream << "Time Signature: " << (uint32_t)eventa->eventData[0] << "/" << (0x01 << (uint32_t)eventa->eventData[1]) << ", " << (uint32_t)eventa->eventData[2] << " clocks per tick, " << (uint32_t)eventa->eventData[3] << " 32nd notes per 24 clocks,";
 				break;
 			case 0x59:
 				retStream << "Key Signature: ";
