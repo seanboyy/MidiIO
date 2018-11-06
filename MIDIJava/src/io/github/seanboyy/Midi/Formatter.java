@@ -206,7 +206,58 @@ class Formatter{
     }
 
     private static String formatEvent(MidiEvent event){
-        return "Midi Event! More specifics in development!\n";
+        StringBuilder sb = new StringBuilder();
+        switch(event.getEventType() & 0xF0){
+            case 0x80:
+                sb.append("Note off in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append(": ")
+                        .append(MidiConstants.NOTE_MAP.get(event.getEventData().get(0)))
+                        .append(" at velocity ")
+                        .append(event.getEventData().get(1) & 0xFF)
+                        .append("\n");
+                break;
+            case 0x90:
+                if((event.getEventData().get(1) & 0xFF) > 0x00)
+                    sb.append("Note on in channel ");
+                else
+                    sb.append("Note off in channel ");
+                sb.append((event.getEventType() & 0x0F) + 1)
+                        .append(": ")
+                        .append(MidiConstants.NOTE_MAP.get(event.getEventData().get(0)));
+                if((event.getEventData().get(1) & 0xFF) > 0x00)
+                    sb.append(" at velocity ")
+                        .append(event.getEventData().get(1) & 0xFF);
+                sb.append("\n");
+                break;
+            case 0xA0:
+                sb.append("Polyphonic key pressure in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append("\n");
+                break;
+            case 0xB0:
+                sb.append("Controller change in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append("\n");
+                break;
+            case 0xC0:
+                sb.append("Program change in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append("\n");
+                break;
+            case 0xD0:
+                sb.append("Channel key pressure in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append("\n");
+                break;
+            case 0xE0:
+                sb.append("Pitch bend in channel ")
+                        .append((event.getEventType() & 0x0F) + 1)
+                        .append("\n");
+                break;
+
+        }
+        return sb.toString();
     }
 
     private static String formatEvent(){

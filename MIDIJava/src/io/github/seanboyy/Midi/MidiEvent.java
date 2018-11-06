@@ -5,6 +5,19 @@ import java.util.ArrayList;
 public class MidiEvent implements Event {
     private VariableLengthValue timeDelta;
     private byte eventType;
+
+    VariableLengthValue getTimeDelta() {
+        return timeDelta;
+    }
+
+    byte getEventType() {
+        return eventType;
+    }
+
+    ArrayList<Byte> getEventData() {
+        return eventData;
+    }
+
     private ArrayList<Byte> eventData;
 
     MidiEvent(VariableLengthValue timeDelta, byte eventType, ArrayList<Byte> eventData) {
