@@ -14,6 +14,9 @@ class Formatter{
 	private static String formatEvent(MetaEvent event){
 	    StringBuilder sb = new StringBuilder();
 	    ByteBuffer bb = ByteBuffer.allocate(0);
+	    sb.append("After ")
+                .append((long)(event.getTimeDelta().toNumber() & 0xFFFFFFFF))
+                .append(" ticks, ");
 	    switch (event.getMetaEventType()){
             case 0x00:
                 sb.append("Sequence Number");
@@ -76,6 +79,8 @@ class Formatter{
             case 0x20:
                 sb.append("Mark: ").append(((event.getEventData().get(0) & 0xFF)) + 1).append("\n");
                 break;
+            case 0x21:
+                sb.append("A thing!").append(((event.getEventData().get(0) & 0x0F)) + 1).append("\n");
             case 0x2F:
                 sb.append("END OF TRACK\n\n");
                 break;
@@ -90,10 +95,28 @@ class Formatter{
                 sb.append((int)(1F / (float)bb.getInt(0) / 60F) * 1e+6).append("\n");
                 break;
             case 0x54:
-                sb.append("SMTPE Offset: ").append(event.getEventData().get(0) & 0xFF).append(".").append(event.getEventData().get(1) & 0xFF).append(".").append(event.getEventData().get(2) & 0xFF).append(".").append(event.getEventData().get(3) & 0xFF).append(".").append(event.getEventData().get(4) & 0xFF).append("\n");
+                sb.append("SMTPE Offset: ")
+                        .append(event.getEventData().get(0) & 0xFF)
+                        .append(".")
+                        .append(event.getEventData().get(1) & 0xFF)
+                        .append(".")
+                        .append(event.getEventData().get(2) & 0xFF)
+                        .append(".")
+                        .append(event.getEventData().get(3) & 0xFF)
+                        .append(".")
+                        .append(event.getEventData().get(4) & 0xFF)
+                        .append("\n");
                 break;
             case 0x58:
-                sb.append("Time Signature: ").append(event.getEventData().get(0) & 0xFF).append("/").append(0x01 << (event.getEventData().get(1) & 0xFF)).append(", ").append(event.getEventData().get(2) & 0xFF).append(" clocks per tick, ").append(event.getEventData().get(3) & 0xFF).append(" 32nd notes per 24 clocks\n");
+                sb.append("Time Signature: ")
+                        .append(event.getEventData().get(0) & 0xFF)
+                        .append("/")
+                        .append(0x01 << (event.getEventData().get(1) & 0xFF))
+                        .append(", ")
+                        .append(event.getEventData().get(2) & 0xFF)
+                        .append(" clocks per tick, ")
+                        .append(event.getEventData().get(3) & 0xFF)
+                        .append(" 32nd notes per 24 clocks\n");
                 break;
             case 0x59:
                 sb.append("Key Signature: ");
@@ -233,16 +256,52 @@ class Formatter{
             case 0xA0:
                 sb.append("Polyphonic key pressure in channel ")
                         .append((event.getEventType() & 0x0F) + 1)
+                        .append(": ")
+                        .append(MidiConstants.NOTE_MAP.get(event.getEventData().get(0)))
+                        .append(" at pressure ")
+                        .append(event.getEventData().get(1))
                         .append("\n");
                 break;
             case 0xB0:
                 sb.append("Controller change in channel ")
                         .append((event.getEventType() & 0x0F) + 1)
-                        .append("\n");
+                        .append(": ");
+                switch(event.getEventData().get(0) & 0xFF){
+                    case 0x78:
+                        sb.append("All sound off");
+                        break;
+                    case 0x79:
+                        sb.append("Reset all controllers");
+                        break;
+                    case 0x7A:
+                        if((event.getEventData().get(1) & 0xFF) == 0x00)
+                            sb.append("Disconnect local keyboard");
+                        else
+                            sb.append("Reconnect local keyboard");
+                        break;
+                    case 0x7B:
+                        sb.append("All notes off");
+                        break;
+                    case 0x7C:
+                        sb.append("Omni mode off");
+                        break;
+                    case 0x7D:
+                        sb.append("Omni mode on");
+                        break;
+                    case 0x7E:
+                        sb.append("Mono mode on");
+                        break;
+                    case 0x7F:
+                        sb.append("Poly mode on");
+                        break;
+                }
+                sb.append("\n");
                 break;
             case 0xC0:
                 sb.append("Program change in channel ")
                         .append((event.getEventType() & 0x0F) + 1)
+                        .append(": ")
+                        .append(MidiConstants.INSTRUMENT_MAP.get(event.getEventData().get(0)))
                         .append("\n");
                 break;
             case 0xD0:
@@ -253,7 +312,12 @@ class Formatter{
             case 0xE0:
                 sb.append("Pitch bend in channel ")
                         .append((event.getEventType() & 0x0F) + 1)
-                        .append("\n");
+                        .append(": ");
+                short bendAmt = 0;
+                bendAmt |= ((event.getEventData().get(1) & 0xFF) << 7);
+                bendAmt |= ((event.getEventData().get(0) & 0xFF));
+                sb.append(0x2000 - bendAmt);
+                sb.append("\n");
                 break;
 
         }

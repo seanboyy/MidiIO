@@ -15,10 +15,16 @@ public class Main {
      */
     public static void main(final String[] args) throws IOException {
         Midi midi = File.read("jauntyambience.mid");
+        Midi midi2 = File.read("O Shenandoah.mid");
         PrintWriter pw = new PrintWriter("jauntyambience.mid.explanation");
+        PrintWriter pw2 = new PrintWriter("O Shenandoah.mid.explanation");
         pw.write(midi.toString());
+        pw2.write(midi2.toString());
         pw.flush();
         pw.close();
+        pw2.flush();
+        pw2.close();
+        File.write("O Shenandoah2.mid", midi2);
         File.write("jauntyambience2.mid", midi);
     }
 }
