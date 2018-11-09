@@ -15,7 +15,7 @@ class Formatter{
 	    StringBuilder sb = new StringBuilder();
 	    ByteBuffer bb = ByteBuffer.allocate(0);
 	    sb.append("After ")
-                .append((long)(event.getTimeDelta().toNumber() & 0xFFFFFFFF))
+                .append(event.getTimeDelta().toNumber())
                 .append(" ticks, ");
 	    switch (event.getMetaEventType()){
             case 0x00:
@@ -230,6 +230,9 @@ class Formatter{
 
     private static String formatEvent(MidiEvent event){
         StringBuilder sb = new StringBuilder();
+        sb.append("After ")
+                .append(event.getTimeDelta().toNumber())
+                .append(" ticks, ");
         switch(event.getEventType() & 0xF0){
             case 0x80:
                 sb.append("Note off in channel ")
