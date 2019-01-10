@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace MIDI.Properties
+namespace MIDIGUI.Properties
 {
 
 

@@ -1,4 +1,4 @@
-﻿namespace MIDI
+﻿namespace MIDIGUI
 {
     partial class Form1
     {

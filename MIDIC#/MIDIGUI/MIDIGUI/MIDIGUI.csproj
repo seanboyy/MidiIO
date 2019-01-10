@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0ECD0C7B-9361-442E-886A-3F856112DDD5}</ProjectGuid>
+    <ProjectGuid>{07BA5D4A-C04E-4152-AE56-7898DD03C928}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>MIDI</RootNamespace>
-    <AssemblyName>MIDI</AssemblyName>
+    <RootNamespace>MIDIGUI</RootNamespace>
+    <AssemblyName>MIDIGUI</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,6 +33,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="MIDILibrary, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\MIDILibrary\MIDILibrary\bin\Debug\MIDILibrary.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
