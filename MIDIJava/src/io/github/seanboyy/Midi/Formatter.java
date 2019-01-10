@@ -342,10 +342,14 @@ class Formatter{
         short div = chunk.getTickDivision();
         switch ((div & 0x8000) >> 15){
             case 0:
-                chunkDivision.append(div & 0x7FFF).append(" ticks per quarter note\n\n");
+                chunkDivision.append(div & 0x7FFF)
+                        .append(" ticks per quarter note\n\n");
                 break;
             case 1:
-                chunkDivision.append(div & 0x7F00).append(" frames per second, ").append(div & 0xFF).append(" ticks per frame\n\n");
+                chunkDivision.append(div & 0x7F00)
+                        .append(" frames per second, ")
+                        .append(div & 0xFF)
+                        .append(" ticks per frame\n\n");
                 break;
         }
         return "Header Chunk. There are "
