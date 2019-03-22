@@ -2,31 +2,31 @@
 {
     public class HeaderChunk : IChunk
     {
-        private readonly uint length;
-        private readonly ushort format;
+        private readonly uint _length;
+        private readonly ushort _format;
         public ushort TrackCount { get; }
         public ushort TickDivision { get; }
 
         public HeaderChunk(uint length, ushort format, ushort trackCount, ushort tickDivision)
         {
-            this.length = length;
-            this.format = format;
+            _length = length;
+            _format = format;
             TrackCount = trackCount;
             TickDivision = tickDivision;
         }
 
         public uint GetLength()
         {
-            return 8 + length;
+            return 8 + _length;
         }
 
         public byte[] ToBitString()
         {
-            byte[] bitString = new byte[GetLength()];
+            var bitString = new byte[GetLength()];
             uint cursor = 0;
             StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, MidiConstants.MIDI_SIGNATURE);
-            StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, length);
-            StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, format);
+            StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, _length);
+            StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, _format);
             StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, TrackCount);
             StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, TickDivision);
             return bitString;

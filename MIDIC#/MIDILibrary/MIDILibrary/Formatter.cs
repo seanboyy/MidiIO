@@ -2,16 +2,24 @@
 {
     public class Formatter
     {
-        private static string FormatEvent(IEvent _event){
-            if (_event is MetaEvent) return FormatEvent((MetaEvent)_event);
-            else if (_event is MidiEvent) return FormatEvent((MidiEvent)_event);
-            else if (_event is SysexEvent) return FormatEvent();
-            else return "";
+        private static string FormatEvent(IEvent _event)
+        {
+            switch (_event)
+            {
+                case MetaEvent @event:
+                    return FormatEvent(@event);
+                case MidiEvent @event:
+                    return FormatEvent(@event);
+                case SysexEvent _:
+                    return FormatEvent();
+                default:
+                    return "";
+            }
         }
 
         private static string FormatEvent(MetaEvent _event)
         {
-            string ret = "";
+            var ret = "";
             ret += "After " + _event.TimeDelta.ToNumber() + " ticks, ";
             switch (_event.MetaEventType)
             {
@@ -25,7 +33,7 @@
                     break;
                 case 0x01:
                     ret += "Text: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -33,7 +41,7 @@
                     break;
                 case 0x02:
                     ret += "Copyright: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -41,7 +49,7 @@
                     break;
                 case 0x03:
                     ret += "Track Name: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -49,7 +57,7 @@
                     break;
                 case 0x04:
                     ret += "Instrument: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -57,7 +65,7 @@
                     break;
                 case 0x05:
                     ret += "Lyric: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -65,7 +73,7 @@
                     break;
                 case 0x06:
                     ret += "Mark: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -73,7 +81,7 @@
                     break;
                 case 0x07:
                     ret += "Cue: ";
-                    foreach (byte b in _event.EventData)
+                    foreach (var b in _event.EventData)
                     {
                         ret += (char)b;
                     }
@@ -90,13 +98,13 @@
                     break;
                 case 0x51:
                     ret += "Tempo Change: ";
-                    uint _temp = 0;
-                    _temp |= _event.EventData[0];
-                    _temp <<= 8;
-                    _temp |= _event.EventData[1];
-                    _temp <<= 8;
-                    _temp |= _event.EventData[2];
-                    ret += ((int)(1F / _temp / 60F) * 1e+6) + "\n";
+                    uint temp1 = 0;
+                    temp1 |= _event.EventData[0];
+                    temp1 <<= 8;
+                    temp1 |= _event.EventData[1];
+                    temp1 <<= 8;
+                    temp1 |= _event.EventData[2];
+                    ret += ((int)(1F / temp1 / 60F) * 1e+6) + "\n";
                     break;
                 case 0x54:
                     ret += "SMTPE Offset: " +
@@ -165,6 +173,9 @@
                                 case 7:
                                     ret += "C# Major\n";
                                     break;
+                                default:
+                                    ret += "";
+                                    break;
                             }
                             break;
                         case 1:
@@ -215,12 +226,21 @@
                                 case 7:
                                     ret += "A# minor\n";
                                     break;
+                                default:
+                                    ret += "";
+                                    break;
                             }
+                            break;
+                        default:
+                            ret += "";
                             break;
                     }
                     break;
                 case 0x7F:
                     ret += "sequencer specific event\n";
+                    break;
+                default:
+                    ret += "";
                     break;
             }
             return ret;
@@ -228,15 +248,14 @@
 
         private static string FormatEvent(MidiEvent _event)
         {
-            string ret = "";
+            var ret = "";
             ret += "After " + _event.TimeDelta.ToNumber() + " ticks, ";
             switch(_event.EventType & 0xF0)
             {
                 case 0x80:
                     ret += "Note off in channel " +
                         ((_event.EventType & 0x0F) + 1) + ": ";
-                    string note = "";
-                    MidiConstants.NOTE_MAP.TryGetValue(_event.EventData[0], out note);
+                    MidiConstants.NOTE_MAP.TryGetValue(_event.EventData[0], out var note);
                     ret += note + " at velocity " +
                         (sbyte)_event.EventData[1] + "\n";
                     break;
@@ -246,7 +265,6 @@
                     else
                         ret += "Note off in channel ";
                     ret += ((_event.EventType & 0x0F) + 1) + ": ";
-                    note = "";
                     MidiConstants.NOTE_MAP.TryGetValue(_event.EventData[0], out note);
                     ret += note;
                     if ((sbyte)_event.EventData[1] > 0x00)
@@ -256,7 +274,6 @@
                 case 0xA0:
                     ret += "Polyphonic key pressure in channel " +
                         ((_event.EventType & 0x0F) + 1) + ": ";
-                    note = "";
                     MidiConstants.NOTE_MAP.TryGetValue(_event.EventData[0], out note);
                     ret += note + " at pressure" +
                         (sbyte)_event.EventData[1] + "\n";
@@ -293,14 +310,16 @@
                         case 0x7F:
                             ret += "Poly mode on";
                             break;
+                        default:
+                            ret += "";
+                            break;
                     }
                     ret += "\n";
                     break;
                 case 0xC0:
                     ret += "Program change in channel " +
                         ((_event.EventType & 0x0F) + 1) + ": ";
-                    string instrument = "";
-                    MidiConstants.INSTRUMENT_MAP.TryGetValue(_event.EventData[0], out instrument);
+                    MidiConstants.INSTRUMENT_MAP.TryGetValue(_event.EventData[0], out var instrument);
                     ret += instrument + "\n";
                     break;
                 case 0xD0:
@@ -316,6 +335,9 @@
                     bendAmt |= _event.EventData[0];
                     ret += 0x2000 - bendAmt + "\n";
                     break;
+                default:
+                    ret += "";
+                    break;
             }
             return ret;
         }
@@ -327,15 +349,21 @@
 
         private static string FormatChunk(IChunk chunk)
         {
-            if (chunk is HeaderChunk) return FormatChunk((HeaderChunk)chunk);
-            else if (chunk is TrackChunk) return FormatChunk((TrackChunk)chunk);
-            else return "";
+            switch (chunk)
+            {
+                case HeaderChunk headerChunk:
+                    return FormatChunk(headerChunk);
+                case TrackChunk trackChunk:
+                    return FormatChunk(trackChunk);
+                default:
+                    return "";
+            }
         }
 
         private static string FormatChunk(HeaderChunk chunk)
         {
-            string chunkDivision = "";
-            ushort div = chunk.TickDivision;
+            var chunkDivision = "";
+            var div = chunk.TickDivision;
             switch((div & 0x8000) >> 15)
             {
                 case 0:
@@ -346,6 +374,9 @@
                         " frames per second, " + (div & 0xFF) +
                         " ticks per frame\n\n";
                     break;
+                default:
+                    chunkDivision += "";
+                    break;
             }
             return "Header Chunk. There are " +
                 chunk.TrackCount + "Track Chunks\n" +
@@ -354,8 +385,8 @@
 
         private static string FormatChunk(TrackChunk chunk)
         {
-            string ret = "";
-            foreach (IEvent e in chunk.Events)
+            var ret = "";
+            foreach (var e in chunk.Events)
             {
                 ret += FormatEvent(e);
             }
@@ -364,8 +395,8 @@
 
         public static string FormatMidi(Midi midi)
         {
-            string ret = "";
-            foreach (IChunk chunk in midi.Chunks)
+            var ret = "";
+            foreach (var chunk in midi.Chunks)
             {
                 ret += FormatChunk(chunk);
             }

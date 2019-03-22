@@ -4,7 +4,7 @@
     {
         public static void StreamValueToBitString(ref uint cursor, ref byte[] bitString, uint value)
         {
-            for (int i = 0; i < 4; ++i)
+            for (var i = 0; i < 4; ++i)
             {
                 bitString[cursor++] = (byte)((value << (8 * i)) >> (8 * 3));
             }
@@ -12,7 +12,7 @@
 
         public static void StreamValueToBitString(ref uint cursor, ref byte[] bitString, ushort value)
         {
-            for (int i = 0; i < 2; ++i)
+            for (var i = 0; i < 2; ++i)
             {
                 bitString[cursor++] = (byte)((value << (8 * i)) >> (8));
             }
@@ -30,7 +30,7 @@
 
         public static void StreamObjectToBitString(ref uint cursor, ref byte[] bitString, VariableLengthValue obj, ulong length)
         {
-            byte[] objString = obj.ToBitString();
+            var objString = obj.ToBitString();
             for (ulong i = 0; i < length; ++i)
             {
                 bitString[cursor++] = objString[(int)i];
@@ -39,7 +39,7 @@
         
         public static void StreamObjectToBitString(ref uint cursor, ref byte[] bitString, IChunk obj, ulong length)
         {
-            byte[] objString = obj.ToBitString();
+            var objString = obj.ToBitString();
             for (ulong i = 0; i < length; ++i)
             {
                 bitString[cursor++] = objString[(int)i];
@@ -49,7 +49,7 @@
 
         public static void StreamObjectToBitString(ref uint cursor, ref byte[] bitString, IEvent obj, ulong length)
         {
-            byte[] objString = obj.ToBitString();
+            var objString = obj.ToBitString();
             for (ulong i = 0; i < length; ++i)
             {
                 bitString[cursor++] = objString[(int)i];
@@ -88,7 +88,7 @@
             uint length = 1;
             for (uint i = 0; i < length; ++i)
             {
-                byte tempByte = GetByteFromBitString(ref cursor, ref bitString);
+                var tempByte = GetByteFromBitString(ref cursor, ref bitString);
                 if ((tempByte & 0x80) == 0x80) length++;
             }
             cursor -= length;

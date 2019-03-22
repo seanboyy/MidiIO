@@ -8,7 +8,7 @@ namespace MIDILibrary
         public byte EventType { get; }
         public List<byte> EventData { get; }
 
-        public MidiEvent(VariableLengthValue timeDelta, byte eventType, List<byte> eventData)
+        public MidiEvent(VariableLengthValue timeDelta, byte eventType, IEnumerable<byte> eventData)
         {
             TimeDelta = new VariableLengthValue(timeDelta);
             EventType = eventType;
@@ -23,11 +23,11 @@ namespace MIDILibrary
 
         public byte[] ToBitString()
         {
-            byte[] bitString = new byte[GetLength()];
+            var bitString = new byte[GetLength()];
             uint cursor = 0;
             StreamingHelper.StreamObjectToBitString(ref cursor, ref bitString, TimeDelta, TimeDelta.Length);
             StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, EventType);
-            foreach (byte b in EventData)
+            foreach (var b in EventData)
             {
                 StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, b);
             }

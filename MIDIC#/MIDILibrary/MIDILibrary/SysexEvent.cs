@@ -20,12 +20,12 @@ namespace MIDILibrary
 
         public byte[] ToBitString()
         {
-            byte[] bitString = new byte[GetLength()];
+            var bitString = new byte[GetLength()];
             uint cursor = 0;
             StreamingHelper.StreamObjectToBitString(ref cursor, ref bitString, TimeDelta, TimeDelta.Length);
             StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, EventType);
             StreamingHelper.StreamObjectToBitString(ref cursor, ref bitString, EventLength, EventLength.Length);
-            foreach (byte b in EventData)
+            foreach (var b in EventData)
             {
                 StreamingHelper.StreamValueToBitString(ref cursor, ref bitString, b);
             }
